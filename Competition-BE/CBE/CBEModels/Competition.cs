@@ -22,5 +22,6 @@ namespace CBEModels
         public bool Restricted { get; set; }
 
         public List<CompetitionStat> CompetitionStats { get; set; }
+        public List<InvitedParticipant> InvitedParticipants { get; set; }
     }
 }

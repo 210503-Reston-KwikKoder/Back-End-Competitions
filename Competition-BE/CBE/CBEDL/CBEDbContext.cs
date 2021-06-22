@@ -16,6 +16,7 @@ namespace CBEDL
         public DbSet<Category> Categories { get; set; }
         public DbSet<Competition> Competitions { get; set; }
         public DbSet<CompetitionStat> CompetitionStats { get; set; }
+        public DbSet<InvitedParticipant> InvitedParticipants { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<User>()
@@ -32,6 +33,8 @@ namespace CBEDL
                 .ValueGeneratedOnAdd();
             modelBuilder.Entity<CompetitionStat>()
                 .HasKey(cS => new { cS.UserId, cS.CompetitionId });
+            modelBuilder.Entity<InvitedParticipant>()
+                .HasKey(iP => new { iP.CompetitionId, iP.UserId });
         }
     }
 }

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace CBEBL
 {
-    class CompBL:ICompBL
+    public class CompBL:ICompBL
     {
         private readonly Repo _repo;
         public CompBL(CBEDbContext context)
