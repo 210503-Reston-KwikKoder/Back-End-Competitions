@@ -83,6 +83,7 @@ namespace GACDRest.Controllers
                 category.Name = typeTest.categoryId;
                 await _categoryBL.AddCategory(category);
             }
+            
             Category category1 = await _categoryBL.GetCategory(typeTest.categoryId);
             User user1 = await _userBL.GetUser(UserID);
             CompetitionStat competitionStat = new CompetitionStat();
@@ -90,6 +91,10 @@ namespace GACDRest.Controllers
             competitionStat.UserId = user1.Id;
             competitionStat.CompetitionId = compInput.compId;
             if ((await _compBL.GetCompetition(compInput.compId)).EndDate < DateTime.Now) return BadRequest();
+            if((await _compBL.GetCompetition(compInput.compId)).Restricted)
+            {
+                if (!(await _compBL.CheckTheList(compInput.compId, user1.Id))) return Forbid();
+            }
             int returnValue =  await _compBL.InsertCompStatUpdate(competitionStat, typeTest.numberofcharacters, typeTest.numberoferrors);
             if (returnValue == -1) return NotFound();
             else return returnValue;

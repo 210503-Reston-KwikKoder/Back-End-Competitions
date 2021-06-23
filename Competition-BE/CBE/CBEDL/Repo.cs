@@ -99,6 +99,22 @@ namespace CBEDL
             }
         }
 
+        public async Task<bool> CheckTheList(int compId, int userId)
+        {
+            try
+            {
+                 await( from iP in _context.InvitedParticipants
+                             where iP.UserId == userId &&
+                             iP.CompetitionId == compId
+                             select iP).SingleAsync();
+                return true;
+            }catch(Exception e)
+            {
+                Log.Error(e.Message);
+                return false;
+            }
+        }
+
         public async Task<List<Category>> GetAllCategories()
         {
             try
@@ -238,6 +254,23 @@ namespace CBEDL
             }
         }
 
+        public async Task<List<InvitedParticipant>> GetInvitedParticipants(int compId)
+        {
+            try
+            {
+                List<InvitedParticipant> invitedParticipants = await (from iP in _context.InvitedParticipants
+                                                                where iP.CompetitionId == compId
+                                                                select iP).ToListAsync();
+                Log.Information("Returning list successfully");
+                return invitedParticipants;
+            }catch(Exception e)
+            {
+                Log.Information(e.StackTrace);
+                Log.Information("No such list found, returning new list");
+                return new List<InvitedParticipant>();
+            }
+        }
+
         public async Task<User> GetUser(int id)
         {
             try
@@ -284,5 +317,19 @@ namespace CBEDL
             }
         }
 
+        public async Task<bool> WhiteListUser(int compId, int userId)
+        {
+            try
+            {
+
+                await _context.InvitedParticipants.AddAsync(new InvitedParticipant() { CompetitionId = compId, UserId = userId });
+                return true;
+            }catch(Exception e)
+            {
+                Log.Error(e.Message);
+                Log.Error("Couldn't add user to the whitelist");
+                return false;
+            }
+        }
     }
 }

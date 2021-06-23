@@ -104,5 +104,25 @@ namespace CBEDL
         /// <param name="id">Id of competition to get</param>
         /// <returns>Competition or null on fail</returns>
         Task<Competition> GetCompetition(int id);
+        /// <summary>
+        /// Adds a user to the whitelist if possible
+        /// </summary>
+        /// <param name="compId">competition Id to add to whitelist of</param>
+        /// <param name="userId">user Id to add to be added</param>
+        /// <returns>true on success, false otherwise</returns>
+        Task<bool> WhiteListUser(int compId, int userId);
+        /// <summary>
+        /// Returns a list of invited participants for a given competition
+        /// </summary>
+        /// <param name="compId">Id for competition to search for</param>
+        /// <returns>List of invited participants, empty list if not found</returns>
+        Task<List<InvitedParticipant>> GetInvitedParticipants(int compId);
+        /// <summary>
+        /// Checks to make sure the given user is on the white list for a restricted competition
+        /// </summary>
+        /// <param name="compId">Id for competition</param>
+        /// <param name="userId">Id for user to check</param>
+        /// <returns>True on success, false otherwise</returns>
+        Task<bool> CheckTheList(int compId, int userId);
     }
 }
