@@ -24,7 +24,10 @@
     <PackageReference Include="Serilog.Sinks.AzureApp" Version="3.1.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
     <PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.1.4" />
+    <PackageReference Include="Serilog.Enrichers.Environment" Version="2.1.3" />
+    <PackageReference Include="Serilog.Sinks.Debug" Version="2.0.0" />
+    <PackageReference Include="Serilog.Sinks.Graylog" Version="2.2.2" />
   </ItemGroup>
 
   <ItemGroup>
@@ -32,4 +35,9 @@
     <ProjectReference Include="..\CBEDL\CBEDL.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="Serilog.Enrichers.Environment" />
+    <None Remove="Serilog.Sinks.Debug" />
+    <None Remove="Serilog.Sinks.Graylog" />
+  </ItemGroup>
 </Project>
