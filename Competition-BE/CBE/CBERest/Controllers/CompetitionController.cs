@@ -171,6 +171,7 @@ namespace CBERest.Controllers
             User u = await _userBL.GetUser(UserID);
             Category category1 = await _categoryBL.GetCategory(cObject.Category);
             int compId = await _compBL.AddCompetition(cObject.Start, cObject.End, category1.Id, cObject.Name, u.Id, cObject.snippet, cObject.author, cObject.restricted);
+            if (cObject.restricted) await _compBL.WhiteListUser(compId, u.Id);
             bool AddCompetitionFlag = (compId == -1);
             if (!AddCompetitionFlag) { return CreatedAtRoute(
                                         routeName : "Get", 

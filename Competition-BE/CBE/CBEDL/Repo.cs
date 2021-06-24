@@ -103,7 +103,7 @@ namespace CBEDL
         {
             try
             {
-                 await( from iP in _context.InvitedParticipants
+                 await (from iP in _context.InvitedParticipants
                              where iP.UserId == userId &&
                              iP.CompetitionId == compId
                              select iP).SingleAsync();
@@ -321,8 +321,11 @@ namespace CBEDL
         {
             try
             {
-
-                await _context.InvitedParticipants.AddAsync(new InvitedParticipant() { CompetitionId = compId, UserId = userId });
+                InvitedParticipant invitedParticipant = new InvitedParticipant();
+                invitedParticipant.CompetitionId = compId;
+                invitedParticipant.UserId = userId;
+                await _context.InvitedParticipants.AddAsync(invitedParticipant);
+                await _context.SaveChangesAsync();
                 return true;
             }catch(Exception e)
             {
