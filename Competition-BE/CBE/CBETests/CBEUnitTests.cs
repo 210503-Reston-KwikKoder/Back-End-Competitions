@@ -460,8 +460,25 @@ namespace CBETests
             mockCompBL.Setup(x => x.GetAllCompetitions()).ReturnsAsync(
                 new List<Competition>
                 {
-                    new Competition(),
+                    new Competition(){
+                        UserCreatedId = 1,
+                        StartDate = new DateTime(),
+                        EndDate = new DateTime(),
+                        CategoryId = 1,
+                        CompetitionName = "Competition",
+                        TestString = "Test",
+                        TestAuthor = "Author"
+                    },
                     new Competition()
+                    {
+                        UserCreatedId = 2,
+                        StartDate = new DateTime(),
+                        EndDate = new DateTime(),
+                        CategoryId = 1,
+                        CompetitionName = "Competition",
+                        TestString = "String",
+                        TestAuthor = "Author"
+                    }
                 }
                 );
             var mockCatBL = new Mock<ICategoryBL>();
@@ -483,8 +500,15 @@ namespace CBETests
             mockUserBL.Setup(x => x.GetUsers()).ReturnsAsync(
                 new List<User>
                 {
-                    new User(),
+                    new User(){
+                        Auth0Id = "AM",
+                        Revapoints = 500
+                    },
                     new User()
+                    {
+                        Auth0Id = "AM",
+                        Revapoints = 1
+                    }
                 }
                 );
             var settings = Options.Create(new ApiSettings());
@@ -502,8 +526,21 @@ namespace CBETests
             mockCompBL.Setup(x => x.GetCompetitionStats(1)).ReturnsAsync(
                 new List<CompetitionStat>
                 {
-                    new CompetitionStat(),
+                    new CompetitionStat() {
+                        CompetitionId = 1,
+                        UserId = 1,
+                        rank = 2,
+                        WPM = 30,
+                        Accuracy = 6
+                    },
                     new CompetitionStat()
+                    {
+                        CompetitionId = 2,
+                        UserId = 1,
+                        rank = 1,
+                        WPM = 60,
+                        Accuracy = 5
+                    }
                 }
                 );
             var mockCatBL = new Mock<ICategoryBL>();
