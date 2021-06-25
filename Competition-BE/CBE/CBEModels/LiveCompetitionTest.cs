@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,6 +12,7 @@ namespace CBEModels
         public LiveCompetitionTest() { }
         public int Id { get; set; }
         public LiveCompetition LiveCompetition { get; set; }
+        [Required]
         public int LiveCompetitionId { get; set; }
         public string TestString { get; set; }
         public string TestAuthor { get; set; }

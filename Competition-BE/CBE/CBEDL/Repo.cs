@@ -98,6 +98,20 @@ namespace CBEDL
             }
         }
 
+        public async Task<LiveCompetitionTest> AddLiveCompetitionTest(LiveCompetitionTest liveCompetitionTest)
+        {
+            try
+            {
+                await _context.LiveCompetitionTests.AddAsync(liveCompetitionTest);
+                await _context.SaveChangesAsync();
+                return liveCompetitionTest;
+            }catch(Exception e)
+            {
+                Log.Error(e.StackTrace);
+                return null;
+            }
+        }
+
         public async Task<User> AddUser(User user)
         {
             try
@@ -268,6 +282,22 @@ namespace CBEDL
                 Log.Error(e.StackTrace);
                 Log.Error("Couldn't get live competition");
                 return null;
+            }
+        }
+
+        public async Task<List<LiveCompetitionTest>> GetLiveCompetitionTestsForCompetition(int compId)
+        {
+            try
+            {
+                List<LiveCompetitionTest> liveCompetitionTests = await(from lCT in _context.LiveCompetitionTests
+                                                                       where lCT.LiveCompetitionId == compId
+                                                                       select lCT).ToListAsync();
+                return liveCompetitionTests;
+            }catch(Exception e)
+            {
+                Log.Information("No competitions found returning empty list");
+                Log.Information(e.Message);
+                return new List<LiveCompetitionTest>();
             }
         }
 
