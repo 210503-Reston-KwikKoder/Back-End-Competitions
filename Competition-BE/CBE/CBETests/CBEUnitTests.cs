@@ -252,6 +252,25 @@ namespace CBETests
                 Assert.Equal(expected, actual);
             }
         }
+
+        [Fact]
+        public async Task SnippetShouldGetRandomQuote()
+        {
+            ISnippets snippetBL = new Snippets();
+            var quote = await snippetBL.GetRandomQuote();
+            Assert.NotNull(quote);
+            Assert.IsType<TestMaterial>(quote);
+        }
+
+        [Fact]
+        public async Task SnippetShouldGetCodeSnippet()
+        {
+            ISnippets snippetBL = new Snippets();
+            var code = snippetBL.GetCodeSnippet(1);
+            Assert.NotNull(code);
+            await Assert.IsType<Task<TestMaterial>>(code);
+        }
+
         /// <summary>
         /// Makes sure adding two of the same category returns null
         /// </summary>
