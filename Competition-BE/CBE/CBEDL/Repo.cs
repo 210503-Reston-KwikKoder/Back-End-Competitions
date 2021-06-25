@@ -82,6 +82,22 @@ namespace CBEDL
             }
         }
 
+        public async Task<int> AddLiveCompetition(LiveCompetition liveCompetition)
+        {
+            try
+            {
+                await _context.LiveCompetitions.AddAsync(liveCompetition);
+                await _context.SaveChangesAsync();
+                return liveCompetition.Id;
+
+            }catch(Exception e)
+            {
+                Log.Error(e.StackTrace);
+                Log.Error("Error occured in adding live competition");
+                return -1;
+            }
+        }
+
         public async Task<User> AddUser(User user)
         {
             try
@@ -96,22 +112,6 @@ namespace CBEDL
             {
                 Log.Error(e.Message);
                 return null;
-            }
-        }
-
-        public async Task<bool> CheckTheList(int compId, int userId)
-        {
-            try
-            {
-                 await (from iP in _context.InvitedParticipants
-                             where iP.UserId == userId &&
-                             iP.CompetitionId == compId
-                             select iP).SingleAsync();
-                return true;
-            }catch(Exception e)
-            {
-                Log.Error(e.Message);
-                return false;
             }
         }
 
@@ -254,20 +254,20 @@ namespace CBEDL
             }
         }
 
-        public async Task<List<InvitedParticipant>> GetInvitedParticipants(int compId)
+       
+        public async Task<LiveCompetition> GetLiveCompetition(int id)
         {
             try
             {
-                List<InvitedParticipant> invitedParticipants = await (from iP in _context.InvitedParticipants
-                                                                where iP.CompetitionId == compId
-                                                                select iP).ToListAsync();
-                Log.Information("Returning list successfully");
-                return invitedParticipants;
+                LiveCompetition liveCompetition = await(from lC in _context.LiveCompetitions
+                                                            where lC.Id == id
+                                                            select lC).SingleAsync();
+                return liveCompetition;
             }catch(Exception e)
             {
-                Log.Information(e.StackTrace);
-                Log.Information("No such list found, returning new list");
-                return new List<InvitedParticipant>();
+                Log.Error(e.StackTrace);
+                Log.Error("Couldn't get live competition");
+                return null;
             }
         }
 
@@ -314,24 +314,6 @@ namespace CBEDL
                 Log.Error(e.Message);
                 Log.Error("Error adding competitionstat returning null");
                 return null;
-            }
-        }
-
-        public async Task<bool> WhiteListUser(int compId, int userId)
-        {
-            try
-            {
-                InvitedParticipant invitedParticipant = new InvitedParticipant();
-                invitedParticipant.CompetitionId = compId;
-                invitedParticipant.UserId = userId;
-                await _context.InvitedParticipants.AddAsync(invitedParticipant);
-                await _context.SaveChangesAsync();
-                return true;
-            }catch(Exception e)
-            {
-                Log.Error(e.Message);
-                Log.Error("Couldn't add user to the whitelist");
-                return false;
             }
         }
     }

@@ -31,7 +31,7 @@ namespace CBEBL
         /// <param name="teststring">test string for the competition to be added</param>
         /// <param name="author">test string for the competition to be added</param>
         /// <returns>Tuple with int for comp id and string of code to be competed on</returns>
-        Task<int> AddCompetition(DateTime startDate, DateTime endDate, int categoryId, string competitionName, int user, string teststring, string author, bool restricted);
+        Task<int> AddCompetition(DateTime startDate, DateTime endDate, int categoryId, string competitionName, int user, string teststring, string author);
         /// <summary>
         /// Method which returns the users that participated in a given competition
         /// </summary>
@@ -69,25 +69,5 @@ namespace CBEBL
         /// <param name="compId">id of competition to be found</param>
         /// <returns>Competition or null if not found</returns>
         Task<Competition> GetCompetition(int compId);
-        /// <summary>
-        /// Whitelists user for a restricted competition, false if unable
-        /// </summary>
-        /// <param name="compId">Id of competition to be added</param>
-        /// <param name="userId">Id of user to be added</param>
-        /// <returns>True on success</returns>
-        Task<bool> WhiteListUser(int compId, int userId);
-        /// <summary>
-        /// Gets the list of whitelisted participants
-        /// </summary>
-        /// <param name="compId">Id of competition to be found</param>
-        /// <returns>WhiteList as list of participant, empty if not found</returns>
-        Task<List<InvitedParticipant>> GetWhiteList(int compId);
-        /// <summary>
-        /// Checks the whitelist and returns true if user is found
-        /// </summary>
-        /// <param name="compId">Id of competition to look for</param>
-        /// <param name="userId">Id of user to look for</param>
-        /// <returns>True on success</returns>
-        Task<bool> CheckTheList(int compId, int userId);
     }
 }

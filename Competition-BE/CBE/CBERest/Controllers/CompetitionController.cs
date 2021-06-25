@@ -170,8 +170,7 @@ namespace CBERest.Controllers
             if (String.IsNullOrEmpty(cObject.snippet) || String.IsNullOrWhiteSpace(cObject.snippet)) return BadRequest();
             User u = await _userBL.GetUser(UserID);
             Category category1 = await _categoryBL.GetCategory(cObject.Category);
-            int compId = await _compBL.AddCompetition(cObject.Start, cObject.End, category1.Id, cObject.Name, u.Id, cObject.snippet, cObject.author, cObject.restricted);
-            if (cObject.restricted) await _compBL.WhiteListUser(compId, u.Id);
+            int compId = await _compBL.AddCompetition(cObject.Start, cObject.End, category1.Id, cObject.Name, u.Id, cObject.snippet, cObject.author);
             bool AddCompetitionFlag = (compId == -1);
             if (!AddCompetitionFlag) { return CreatedAtRoute(
                                         routeName : "Get", 
@@ -179,63 +178,7 @@ namespace CBERest.Controllers
                                         value: compId); }
             else return BadRequest();
         }
-        [HttpPut("whitelist")]
-        [Authorize]
-        public async Task<ActionResult> Put(WhiteListInput whiteListInput)
-        {
-            try
-            {
-                string UserID = this.User.FindFirst(ClaimTypes.NameIdentifier).Value;
-                User u = await _userBL.GetUser(UserID);
-                if (u.Id != (await _compBL.GetCompetition(whiteListInput.compId)).UserCreatedId) return Forbid();
-                else if (!(await _compBL.WhiteListUser(whiteListInput.compId, whiteListInput.userId))) return BadRequest();
-                else return Ok();
-            }
-            catch(Exception e)
-            {
-                Log.Error(e.StackTrace);
-                return NotFound();
-            }
-            
-        }
-        [HttpGet("whitelist/{id}")]
-        public async Task<ActionResult<IEnumerable<UserNameModel>>> GetWhiteList(int id)
-        {
-            List<UserNameModel> userNameModels = new List<UserNameModel>();
-            try
-            {
-                List<InvitedParticipant> invitedParticipants = await _compBL.GetWhiteList(id);
-                foreach (InvitedParticipant i in invitedParticipants)
-                {
-                    UserNameModel userNameModel = new UserNameModel();
-                    try
-                    {
-                        User u = await _userBL.GetUser(i.UserId);
-                        dynamic AppBearerToken = GetApplicationToken();
-                        var client = new RestClient($"https://kwikkoder.us.auth0.com/api/v2/users/{u.Auth0Id}");
-                        var request = new RestRequest(Method.GET);
-                        request.AddHeader("authorization", "Bearer " + AppBearerToken.access_token);
-                        IRestResponse restResponse = await client.ExecuteAsync(request);
-                        dynamic deResponse = JsonConvert.DeserializeObject(restResponse.Content);
-                        userNameModel.UserId = i.UserId;
-                        userNameModel.Name = deResponse.name;
-                        userNameModel.UserName = deResponse.username;
 
-                    }
-                    catch (Exception e)
-                    {
-                        Log.Error(e.Message);
-                        Log.Error("Unexpected error occured in CompetitionController");
-                    }
-                }
-                return userNameModels;
-            }
-            catch (Exception e)
-            {
-                Log.Error(e.StackTrace);
-                return BadRequest();
-            }
-        }
 
         /// <summary>
         /// Private method to get application token for auth0 management 
