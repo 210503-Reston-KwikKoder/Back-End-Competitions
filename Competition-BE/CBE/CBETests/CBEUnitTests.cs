@@ -6,7 +6,6 @@ using CBERest;
 using CBEModels;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
-using Serilog;
 using Moq;
 using System.Collections.Generic;
 using CBERest.Controllers;
@@ -265,7 +264,8 @@ namespace CBETests
         [Fact]
         public async Task SnippetShouldGetCodeSnippet()
         {
-            ISnippets snippetBL = new Snippets();
+            var settings = Options.Create(new ApiSettings());
+            ISnippets snippetBL = new Snippets(settings);
             var code = snippetBL.GetCodeSnippet(1);
             Assert.NotNull(code);
             await Assert.IsType<Task<TestMaterial>>(code);
@@ -482,6 +482,7 @@ namespace CBETests
                 }
                 );
             var mockCatBL = new Mock<ICategoryBL>();
+            mockCatBL.Setup(x => x.GetCategoryById(1)).ReturnsAsync(new Category());
             var mockUserBL = new Mock<IUserBL>();
             var settings = Options.Create(new ApiSettings());
 
@@ -559,6 +560,7 @@ namespace CBETests
             var mockCompBL = new Mock<ICompBL>();
             mockCompBL.Setup(x => x.GetCompStuff(1)).ReturnsAsync(Tuple.Create("author", "string", 1));
             var mockCatBL = new Mock<ICategoryBL>();
+            mockCatBL.Setup(x => x.GetCategoryById(1)).ReturnsAsync(new Category());
             var mockUserBL = new Mock<IUserBL>();
 
             var controller = new CompetitonTestsController(mockUserBL.Object, mockCatBL.Object, mockCompBL.Object);
@@ -566,7 +568,6 @@ namespace CBETests
             Assert.NotNull(result);
             Assert.IsType<ActionResult<CompetitionContent>>(result);
         }
-
         private void Seed()
         {
             using (var context = new CBEDbContext(options))
