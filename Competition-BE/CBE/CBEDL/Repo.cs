@@ -285,6 +285,20 @@ namespace CBEDL
             }
         }
 
+        public async Task<List<LiveCompetition>> GetLiveCompetitions()
+        {
+            try
+            {
+                return await (from lC in _context.LiveCompetitions
+                              select lC).ToListAsync();
+            } catch(Exception e)
+            {
+                Log.Error(e.StackTrace);
+                Log.Error("Returning empty list for live competitions");
+                return new List<LiveCompetition>();
+            }
+        }
+
         public async Task<List<LiveCompetitionTest>> GetLiveCompetitionTestsForCompetition(int compId)
         {
             try
