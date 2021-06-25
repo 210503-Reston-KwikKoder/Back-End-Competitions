@@ -81,6 +81,23 @@ namespace CBEBL
         /// <param name="id">id of live competition to get</param>
         /// <returns>Live Competition associated with the given ID</returns>
         Task<LiveCompetition> GetLiveCompetition(int id);
+        /// <summary>
+        /// Adds a Live Competition Test to a given competition, has to reference a given live competition
+        /// </summary>
+        /// <param name="liveCompetitionTest">live competition to be added</param>
+        /// <returns>LiveCompetitionTest added, null on error</returns>
+        Task<LiveCompetitionTest> AddLiveCompetitionTest(LiveCompetitionTest liveCompetitionTest);
+        /// <summary>
+        /// Gets a list of tests associated with a given competition
+        /// </summary>
+        /// <param name="compId">Id of competition to get tests for</param>
+        /// <returns>List of CompetitionTests associated with competition, empty if none found</returns>
+        Task<List<LiveCompetitionTest>> GetLiveCompetitionTestsForCompetition(int compId);
+        /// <summary>
+        /// Method to get all the live competitions in the database
+        /// </summary>
+        /// <returns>List of live competitions, empty if none exist</returns>
+        Task<List<LiveCompetition>> GetLiveCompetitions();
 
     }
 }
