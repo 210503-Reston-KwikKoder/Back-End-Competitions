@@ -568,6 +568,14 @@ namespace CBETests
             Assert.NotNull(result);
             Assert.IsType<ActionResult<CompetitionContent>>(result);
         }
+
+        [Fact]
+        public void CheckScopeAuthShouldThrowAnexception()
+        {
+            Assert.Throws<ArgumentNullException>(() => new CheckScopeAuth(null, null));
+        }
+
+
         private void Seed()
         {
             using (var context = new CBEDbContext(options))
@@ -576,6 +584,5 @@ namespace CBETests
                 context.Database.EnsureCreated();
             }
         }
-
     } 
 }
