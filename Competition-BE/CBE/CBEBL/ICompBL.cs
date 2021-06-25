@@ -69,5 +69,18 @@ namespace CBEBL
         /// <param name="compId">id of competition to be found</param>
         /// <returns>Competition or null if not found</returns>
         Task<Competition> GetCompetition(int compId);
+        /// <summary>
+        /// Adds a live competition to the database and returns the new id
+        /// </summary>
+        /// <param name="liveCompetition">LiveCompetition to be added</param>
+        /// <returns>-1 on error, new live competition id otherwise</returns>
+        Task<int> AddLiveCompetition(LiveCompetition liveCompetition);
+        /// <summary>
+        /// Gets a live competition by the Id
+        /// </summary>
+        /// <param name="id">id of live competition to get</param>
+        /// <returns>Live Competition associated with the given ID</returns>
+        Task<LiveCompetition> GetLiveCompetition(int id);
+
     }
 }

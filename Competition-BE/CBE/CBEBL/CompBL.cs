@@ -41,6 +41,10 @@ namespace CBEBL
             return await _repo.AddCompetition(competition);
         }
 
+        public async Task<int> AddLiveCompetition(LiveCompetition liveCompetition)
+        {
+            return await _repo.AddLiveCompetition(liveCompetition);
+        }
 
         public async Task<List<Competition>> GetAllCompetitions()
         {
@@ -65,6 +69,11 @@ namespace CBEBL
         public async Task<Tuple<string, string, int>> GetCompStuff(int compId)
         {
             return await _repo.GetCompStuff(compId);
+        }
+
+        public async Task<LiveCompetition> GetLiveCompetition(int id)
+        {
+            return await _repo.GetLiveCompetition(id);
         }
 
         public async Task<int> InsertCompStatUpdate(CompetitionStat competitionStat, int numberWords, int numberErrors)
