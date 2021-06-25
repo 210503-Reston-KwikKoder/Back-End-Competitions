@@ -3,33 +3,33 @@ using System;
 using CBEDL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace CBEDL.Migrations
 {
     [DbContext(typeof(CBEDbContext))]
-    [Migration("20210623134745_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20210625165651_MSSQLMigration")]
+    partial class MSSQLMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("Relational:MaxIdentifierLength", 63)
+                .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("ProductVersion", "5.0.7")
-                .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
             modelBuilder.Entity("CBEModels.Category", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<int>("Name")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -40,35 +40,32 @@ namespace CBEDL.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<int>("CategoryId")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<string>("CompetitionName")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("EndDate")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<bool>("Restricted")
-                        .HasColumnType("boolean");
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("StartDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("TestAuthor")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TestString")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("UserCreatedId")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<int?>("UserId")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -82,19 +79,19 @@ namespace CBEDL.Migrations
             modelBuilder.Entity("CBEModels.CompetitionStat", b =>
                 {
                     b.Property<int>("UserId")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<int>("CompetitionId")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<double>("Accuracy")
-                        .HasColumnType("double precision");
+                        .HasColumnType("float");
 
                     b.Property<double>("WPM")
-                        .HasColumnType("double precision");
+                        .HasColumnType("float");
 
                     b.Property<int>("rank")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.HasKey("UserId", "CompetitionId");
 
@@ -103,38 +100,67 @@ namespace CBEDL.Migrations
                     b.ToTable("CompetitionStats");
                 });
 
-            modelBuilder.Entity("CBEModels.InvitedParticipant", b =>
+            modelBuilder.Entity("CBEModels.LiveCompetition", b =>
                 {
-                    b.Property<int>("CompetitionId")
-                        .HasColumnType("integer");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("CompetitionId", "UserId");
+                    b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.ToTable("LiveCompetitions");
+                });
 
-                    b.ToTable("InvitedParticipants");
+            modelBuilder.Entity("CBEModels.LiveCompetitionTest", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("LiveCompetitionId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TestAuthor")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TestString")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("LiveCompetitionId");
+
+                    b.ToTable("LiveCompetitionTests");
                 });
 
             modelBuilder.Entity("CBEModels.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Auth0Id")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("Revapoints")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("Auth0Id")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[Auth0Id] IS NOT NULL");
 
                     b.ToTable("Users");
                 });
@@ -175,30 +201,28 @@ namespace CBEDL.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("CBEModels.InvitedParticipant", b =>
+            modelBuilder.Entity("CBEModels.LiveCompetitionTest", b =>
                 {
-                    b.HasOne("CBEModels.Competition", "Competition")
-                        .WithMany("InvitedParticipants")
-                        .HasForeignKey("CompetitionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("CBEModels.User", "User")
+                    b.HasOne("CBEModels.Category", "Category")
                         .WithMany()
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Competition");
+                    b.HasOne("CBEModels.LiveCompetition", "LiveCompetition")
+                        .WithMany()
+                        .HasForeignKey("LiveCompetitionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Navigation("User");
+                    b.Navigation("Category");
+
+                    b.Navigation("LiveCompetition");
                 });
 
             modelBuilder.Entity("CBEModels.Competition", b =>
                 {
                     b.Navigation("CompetitionStats");
-
-                    b.Navigation("InvitedParticipants");
                 });
 
             modelBuilder.Entity("CBEModels.User", b =>

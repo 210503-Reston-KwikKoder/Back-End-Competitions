@@ -19,9 +19,8 @@ namespace CBEModels
         public string CompetitionName { get; set; }
         public string TestString { get; set; }
         public string TestAuthor { get; set; }
-        public bool Restricted { get; set; }
 
         public List<CompetitionStat> CompetitionStats { get; set; }
-        public List<InvitedParticipant> InvitedParticipants { get; set; }
+        
     }
 }

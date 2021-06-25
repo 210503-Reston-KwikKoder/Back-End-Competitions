@@ -105,24 +105,16 @@ namespace CBEDL
         /// <returns>Competition or null on fail</returns>
         Task<Competition> GetCompetition(int id);
         /// <summary>
-        /// Adds a user to the whitelist if possible
+        /// Adds a live competition to the database and returns the new id
         /// </summary>
-        /// <param name="compId">competition Id to add to whitelist of</param>
-        /// <param name="userId">user Id to add to be added</param>
-        /// <returns>true on success, false otherwise</returns>
-        Task<bool> WhiteListUser(int compId, int userId);
+        /// <param name="liveCompetition">LiveCompetition to be added</param>
+        /// <returns>-1 on error, new live competition id otherwise</returns>
+        Task<int> AddLiveCompetition(LiveCompetition liveCompetition);
         /// <summary>
-        /// Returns a list of invited participants for a given competition
+        /// Gets a live competition by the Id
         /// </summary>
-        /// <param name="compId">Id for competition to search for</param>
-        /// <returns>List of invited participants, empty list if not found</returns>
-        Task<List<InvitedParticipant>> GetInvitedParticipants(int compId);
-        /// <summary>
-        /// Checks to make sure the given user is on the white list for a restricted competition
-        /// </summary>
-        /// <param name="compId">Id for competition</param>
-        /// <param name="userId">Id for user to check</param>
-        /// <returns>True on success, false otherwise</returns>
-        Task<bool> CheckTheList(int compId, int userId);
+        /// <param name="id">id of live competition to get</param>
+        /// <returns>Live Competition associated with the given ID</returns>
+        Task<LiveCompetition> GetLiveCompetition(int id);
     }
 }
