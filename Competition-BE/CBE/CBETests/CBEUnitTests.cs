@@ -136,7 +136,7 @@ namespace CBETests
                 await userBL.AddUser(user);
                 Category category1 = await categoryBL.GetCategory(1);
                 string testForComp = "Console.WriteLine('Hello World');";
-                int compId = await compBL.AddCompetition(DateTime.Now, DateTime.Now, category1.Id, "name", 1, testForComp, "testauthor", false);
+                int compId = await compBL.AddCompetition(DateTime.Now, DateTime.Now, category1.Id, "name", 1, testForComp, "testauthor");
                 CompetitionStat competitionStat = new CompetitionStat();
                 competitionStat.WPM = 50;
                 competitionStat.UserId = 1;
@@ -344,7 +344,7 @@ namespace CBETests
                 await userBL.AddUser(user);
                 Category category1 = await categoryBL.GetCategory(1);
                 string testForComp = "Console.WriteLine('Hello World');";
-                int compId = await compBL.AddCompetition(DateTime.Now, DateTime.Now, category1.Id, "name", 1, testForComp, "Ada Lovelace", false);
+                int compId = await compBL.AddCompetition(DateTime.Now, DateTime.Now, category1.Id, "name", 1, testForComp, "Ada Lovelace");
                 Tuple<string, string, int> tuple = await compBL.GetCompStuff(compId);
                 Assert.Equal(testForComp, tuple.Item2);
             }
@@ -390,7 +390,7 @@ namespace CBETests
                 await userBL.AddUser(user);
                 Category category1 = await categoryBL.GetCategory(1);
                 string testForComp = "Console.WriteLine('Hello World');";
-                await compBL.AddCompetition(DateTime.Now, DateTime.Now, category1.Id, "name", 1, testForComp, "testauthor", false);
+                await compBL.AddCompetition(DateTime.Now, DateTime.Now, category1.Id, "name", 1, testForComp, "testauthor");
                 int expected = 1;
                 int actual = (await compBL.GetAllCompetitions()).Count;
                 Assert.Equal(expected, actual);
@@ -425,87 +425,7 @@ namespace CBETests
                 Assert.Null(await compBL.GetCompetition(1));
             }
         }
-        [Fact]
-        public async Task AddingToWhiteListShouldWork()
-        {
-            using (var context = new CBEDbContext(options))
-            {
-                Competition c = new Competition();
-                User user = new User();
-                user.Auth0Id = "test";
-                IUserBL userBL = new UserBL(context);
-                ICategoryBL categoryBL = new CategoryBL(context);
-                User user1 = new User();
-                user1.Auth0Id = "test1";
-                await userBL.AddUser(user1);
-                ICompBL compBL = new CompBL(context);
-                Category category = new Category();
-                category.Name = 1;
-                await categoryBL.AddCategory(category);
-                await userBL.AddUser(user);
-                Category category1 = await categoryBL.GetCategory(1);
-                string testForComp = "Console.WriteLine('Hello World');";
-                int compId = await compBL.AddCompetition(DateTime.Now, DateTime.Now, category1.Id, "name", 1, testForComp, "testauthor", true);
-                bool actual = await compBL.WhiteListUser(compId, 2);
-                bool expected = true;
-                Assert.Equal(expected, actual);
-            }
-        }
-        [Fact]
-        public async Task CheckTheListShouldReturnTrue()
-        {
-            using (var context = new CBEDbContext(options))
-            {
-                Competition c = new Competition();
-                User user = new User();
-                user.Auth0Id = "test";
-                IUserBL userBL = new UserBL(context);
-                ICategoryBL categoryBL = new CategoryBL(context);
-                User user1 = new User();
-                user1.Auth0Id = "test1";
-                await userBL.AddUser(user1);
-                ICompBL compBL = new CompBL(context);
-                Category category = new Category();
-                category.Name = 1;
-                await categoryBL.AddCategory(category);
-                await userBL.AddUser(user);
-                Category category1 = await categoryBL.GetCategory(1);
-                string testForComp = "Console.WriteLine('Hello World');";
-                int compId = await compBL.AddCompetition(DateTime.Now, DateTime.Now, category1.Id, "name", 1, testForComp, "testauthor", true);
-                await compBL.WhiteListUser(compId, 2);
-                bool actual = await compBL.CheckTheList(compId, 2);
-                bool expected = true;
-                Assert.Equal(expected, actual);
-            }
-        }
-        [Fact]
-        public async Task GetWhiteListShouldReturnCorrectNumbe()
-        {
-            using (var context = new CBEDbContext(options))
-            {
-                Competition c = new Competition();
-                User user = new User();
-                user.Auth0Id = "test";
-                IUserBL userBL = new UserBL(context);
-                ICategoryBL categoryBL = new CategoryBL(context);
-                User user1 = new User();
-                user1.Auth0Id = "test1";
-                await userBL.AddUser(user1);
-                ICompBL compBL = new CompBL(context);
-                Category category = new Category();
-                category.Name = 1;
-                await categoryBL.AddCategory(category);
-                await userBL.AddUser(user);
-                Category category1 = await categoryBL.GetCategory(1);
-                string testForComp = "Console.WriteLine('Hello World');";
-                int compId = await compBL.AddCompetition(DateTime.Now, DateTime.Now, category1.Id, "name", 1, testForComp, "testauthor", true);
-                await compBL.WhiteListUser(compId, 2);
-                int actual = (await compBL.GetWhiteList(compId)).Count;
-                int expected = 1;
-                Assert.Equal(expected, actual);
-            }
-        }
-
+       
         private void Seed()
         {
             using (var context = new CBEDbContext(options))

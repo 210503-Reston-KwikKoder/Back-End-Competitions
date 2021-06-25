@@ -28,7 +28,7 @@ namespace CBEBL
             competition.UserCreatedId = user;
             return await _repo.AddCompetition(competition);
         }
-        public async Task<int> AddCompetition(DateTime startDate, DateTime endDate, int categoryId, string competitionName, int user, string teststring, string author, bool restricted)
+        public async Task<int> AddCompetition(DateTime startDate, DateTime endDate, int categoryId, string competitionName, int user, string teststring, string author)
         {
             Competition competition = new Competition();
             competition.StartDate = startDate;
@@ -38,14 +38,9 @@ namespace CBEBL
             competition.TestString = teststring;
             competition.UserCreatedId = user;
             competition.TestAuthor = author;
-            competition.Restricted = restricted;
             return await _repo.AddCompetition(competition);
         }
 
-        public async Task<bool> CheckTheList(int compId, int userId)
-        {
-            return await _repo.CheckTheList(compId, userId);
-        }
 
         public async Task<List<Competition>> GetAllCompetitions()
         {
@@ -70,11 +65,6 @@ namespace CBEBL
         public async Task<Tuple<string, string, int>> GetCompStuff(int compId)
         {
             return await _repo.GetCompStuff(compId);
-        }
-
-        public async Task<List<InvitedParticipant>> GetWhiteList(int compId)
-        {
-            return await _repo.GetInvitedParticipants(compId);
         }
 
         public async Task<int> InsertCompStatUpdate(CompetitionStat competitionStat, int numberWords, int numberErrors)
@@ -105,19 +95,5 @@ namespace CBEBL
             }
         }
 
-        public async Task<bool> WhiteListUser(int compId, int userId)
-        {
-            try
-            {
-                if (!((await _repo.GetCompetition(compId)).Restricted)) return false;
-                else await _repo.WhiteListUser(compId, userId);
-                return true;
-            }
-            catch(Exception e)
-            {
-                Log.Error(e.StackTrace);
-                return false;
-            }
-        }
     }
 }
