@@ -7,6 +7,14 @@ using CBEModels;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using Serilog;
+using Moq;
+using System.Collections.Generic;
+using CBERest.Controllers;
+using Microsoft.Extensions.Options;
+using CBERest.DTO;
+using Microsoft.AspNetCore.Mvc;
+using GACDRest.Controllers;
+
 namespace CBETests
 {
     public class CBEUnitTests
@@ -14,7 +22,7 @@ namespace CBETests
         private readonly DbContextOptions<CBEDbContext> options;
         public CBEUnitTests()
         {
-            options = new DbContextOptionsBuilder<CBEDbContext>().UseSqlite("Filename=Test.db").Options;
+            options = new DbContextOptionsBuilder<CBEDbContext>().UseSqlite("Filename=Test.db;").Options;
             Seed();
         }
         /// <summary>
@@ -425,7 +433,84 @@ namespace CBETests
                 Assert.Null(await compBL.GetCompetition(1));
             }
         }
-       
+
+        [Fact]
+        public async Task CompetitionControllerShouldReturnListOfCompetitionObject()
+        {
+            var mockCompBL = new Mock<ICompBL>();
+            mockCompBL.Setup(x => x.GetAllCompetitions()).ReturnsAsync(
+                new List<Competition>
+                {
+                    new Competition(),
+                    new Competition()
+                }
+                );
+            var mockCatBL = new Mock<ICategoryBL>();
+            var mockUserBL = new Mock<IUserBL>();
+            var settings = Options.Create(new ApiSettings());
+
+            var controller = new CompetitionController(mockCompBL.Object, mockCatBL.Object, mockUserBL.Object, settings);
+            var result = await controller.GetAsync();
+            Assert.NotNull(result);
+            Assert.IsType<ActionResult<IEnumerable<CompetitionObject>>>(result);
+        }
+
+        [Fact]
+        public async Task CompetitionControllerShouldReturnListOfUsers()
+        {
+            var mockCompBL = new Mock<ICompBL>();
+            var mockCatBL = new Mock<ICategoryBL>();
+            var mockUserBL = new Mock<IUserBL>();
+            mockUserBL.Setup(x => x.GetUsers()).ReturnsAsync(
+                new List<User>
+                {
+                    new User(),
+                    new User()
+                }
+                );
+            var settings = Options.Create(new ApiSettings());
+
+            var controller = new CompetitionController(mockCompBL.Object, mockCatBL.Object, mockUserBL.Object, settings);
+            var result = await controller.GetAllUsers();
+            Assert.NotNull(result);
+            Assert.IsType<ActionResult<IEnumerable<UserNameModel>>>(result);
+        }
+
+        [Fact]
+        public async Task CompetitionControllerShouldReturnListOfCompStatOutput()
+        {
+            var mockCompBL = new Mock<ICompBL>();
+            mockCompBL.Setup(x => x.GetCompetitionStats(1)).ReturnsAsync(
+                new List<CompetitionStat>
+                {
+                    new CompetitionStat(),
+                    new CompetitionStat()
+                }
+                );
+            var mockCatBL = new Mock<ICategoryBL>();
+            var mockUserBL = new Mock<IUserBL>();
+            var settings = Options.Create(new ApiSettings());
+
+            var controller = new CompetitionController(mockCompBL.Object, mockCatBL.Object, mockUserBL.Object, settings);
+            var result = await controller.GetAsync(1);
+            Assert.NotNull(result);
+            Assert.IsType<ActionResult<IEnumerable<CompStatOutput>>>(result);
+        }
+
+        [Fact]
+        public async Task CompetitionTestControllerShouldReturnCompetitionContent()
+        {
+            var mockCompBL = new Mock<ICompBL>();
+            mockCompBL.Setup(x => x.GetCompStuff(1)).ReturnsAsync(Tuple.Create("author", "string", 1));
+            var mockCatBL = new Mock<ICategoryBL>();
+            var mockUserBL = new Mock<IUserBL>();
+
+            var controller = new CompetitonTestsController(mockUserBL.Object, mockCatBL.Object, mockCompBL.Object);
+            var result = await controller.Get(1);
+            Assert.NotNull(result);
+            Assert.IsType<ActionResult<CompetitionContent>>(result);
+        }
+
         private void Seed()
         {
             using (var context = new CBEDbContext(options))
