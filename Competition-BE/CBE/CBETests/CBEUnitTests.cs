@@ -409,7 +409,6 @@ namespace CBETests
                 user.Auth0Id = "test";
                 IUserBL userBL = new UserBL(context);
                 ICategoryBL categoryBL = new CategoryBL(context);
-                // IUserStatBL userStatBL = new UserStatBL(context);
                 ICompBL compBL = new CompBL(context);
                 Category category = new Category();
                 category.Name = 1;
@@ -574,8 +573,118 @@ namespace CBETests
         {
             Assert.Throws<ArgumentNullException>(() => new CheckScopeAuth(null, null));
         }
-
-
+        [Fact]
+        public async Task AddLiveCompetitionShouldAddCompetition()
+        {
+            using (var context = new CBEDbContext(options))
+            {
+                Competition c = new Competition();
+                ICompBL compBL = new CompBL(context);
+                LiveCompetition liveCompetition = new LiveCompetition();
+                liveCompetition.Name = "Test";
+                await compBL.AddLiveCompetition(liveCompetition);
+                int expected = 1;
+                int actual = (await compBL.GetLiveCompetitions()).Count;
+                Assert.Equal(expected, actual);
+            }
+        }
+        [Fact]
+        public async Task AddLiveCompetitionTesShouldAddCompetitionTest()
+        {
+            using (var context = new CBEDbContext(options))
+            {
+                Competition c = new Competition();
+                ICompBL compBL = new CompBL(context);
+                ICategoryBL categoryBL = new CategoryBL(context);
+                Category category = new Category();
+                category.Name = 1;
+                string testForComp = "Console.WriteLine('Hello World');";
+                string authorForComp = "Jane Doe";
+                LiveCompetition liveCompetition = new LiveCompetition();
+                liveCompetition.Name = "Test";
+                await compBL.AddLiveCompetition(liveCompetition);
+                await categoryBL.AddCategory(category);
+                Category category1 = await categoryBL.GetCategory(1);
+                LiveCompetitionTest liveCompetitionTest = new LiveCompetitionTest();
+                liveCompetitionTest.LiveCompetitionId = 1;
+                liveCompetitionTest.TestAuthor = authorForComp;
+                liveCompetitionTest.TestString = testForComp;
+                liveCompetitionTest.CategoryId = category1.Id;
+                await compBL.AddLiveCompetitionTest(liveCompetitionTest);
+                int expected = 1;
+                int actual = (await compBL.GetLiveCompetitionTestsForCompetition(1)).Count;
+                Assert.Equal(expected, actual);
+            }
+        }
+        [Fact]
+        public async Task LiveCompetitionControllerShouldReturnListOfLiveCompetitions()
+        {
+            var mockCompBL = new Mock<ICompBL>();
+            mockCompBL.Setup(compBL => compBL.GetLiveCompetitions()).ReturnsAsync(
+                new List<LiveCompetition>
+                {
+                    new LiveCompetition(){ 
+                        Id = 1,
+                        Name = "first"
+                    },
+                     new LiveCompetition(){
+                        Id = 2,
+                        Name = "second"
+                    }
+                }
+                );
+            var mockCatBL = new Mock<ICategoryBL>();
+            var mockUserBL = new Mock<IUserBL>();
+            var settings = Options.Create(new ApiSettings());
+            var snippets = new Mock<ISnippets>();
+            var controller = new LiveCompetitionController(mockCompBL.Object, mockCatBL.Object, mockUserBL.Object, settings, snippets.Object);
+            var result = await controller.Get();
+            int actual = 0;
+            int expected = 2;
+            foreach( LiveCompOutput l in result)
+            {
+                ++actual;
+            }
+            Assert.Equal(actual, expected);
+        }
+        [Fact]
+        public async Task LiveCompetitionControllerShouldReturnListOfLiveCompetitionTests()
+        {
+            var mockCompBL = new Mock<ICompBL>();
+            mockCompBL.Setup(compBL => compBL.GetLiveCompetitionTestsForCompetition(1)).ReturnsAsync(
+                new List<LiveCompetitionTest>
+                {
+                    new LiveCompetitionTest(){
+                        Id = 1,
+                        LiveCompetitionId = 1,
+                        CategoryId = 1,
+                        TestString = "Test",
+                        TestAuthor = "John Doe"
+                    },
+                     new LiveCompetitionTest(){
+                        Id = 2,
+                        LiveCompetitionId = 1,
+                        CategoryId = 1,
+                        TestString = "MyTest",
+                        TestAuthor = "Jane Doe"
+                    }
+                }
+                );
+            var mockCatBL = new Mock<ICategoryBL>();
+            mockCatBL.Setup(x => x.GetCategoryById(1)).ReturnsAsync(new Category() { Id = 1, Name = 2 });
+            var mockUserBL = new Mock<IUserBL>();
+            var settings = Options.Create(new ApiSettings());
+            var snippets = new Mock<ISnippets>();
+            var controller = new LiveCompetitionController(mockCompBL.Object, mockCatBL.Object, mockUserBL.Object, settings, snippets.Object);
+            var result = await controller.Get(1);
+            int actual = 0;
+            int expected = 2;
+            foreach (LiveCompTestOutput l in result)
+            {
+                ++actual;
+            }
+            Assert.Equal(actual, expected);
+        }
         private void Seed()
         {
             using (var context = new CBEDbContext(options))
