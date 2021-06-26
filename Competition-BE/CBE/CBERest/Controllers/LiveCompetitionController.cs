@@ -50,7 +50,7 @@ namespace CBERest.Controllers
 
         // GET api/<LiveCompetitionController>/5
         [HttpGet("{id}", Name = "GetComp")]
-        public async Task<ActionResult<IEnumerable<LiveCompTestOutput>>> Get(int id)
+        public async Task<IEnumerable<LiveCompTestOutput>> Get(int id)
         {
             List<LiveCompetitionTest> liveCompetitionTests = await _compBL.GetLiveCompetitionTestsForCompetition(id);
             List<LiveCompTestOutput> liveCompTestOutputs = new List<LiveCompTestOutput>();
