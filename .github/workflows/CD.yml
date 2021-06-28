@@ -64,7 +64,7 @@ jobs:
       uses: azure/k8s-deploy@v1
       with:
         manifests: |
-          AppBL/manifests/deploy-api.yml
+          Competition-BE/CBE/manifests/deploy-api.yml
         images: |
           ${{ secrets.DOCKERHUB_USERNAME}}/${{ env.APP_NAME }}:${{ github.sha }}
         imagePullSecrets: |
