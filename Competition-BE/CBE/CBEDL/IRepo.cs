@@ -128,5 +128,10 @@ namespace CBEDL
         /// <param name="compId">Id of competition to get tests for</param>
         /// <returns>List of CompetitionTests associated with competition, empty if none found</returns>
         Task<List<LiveCompetitionTest>> GetLiveCompetitionTestsForCompetition(int compId);
+        /// <summary>
+        /// Method to get all the live competitions in the database
+        /// </summary>
+        /// <returns>List of live competitions, empty if none exist</returns>
+        Task<List<LiveCompetition>> GetLiveCompetitions();
     }
 }
