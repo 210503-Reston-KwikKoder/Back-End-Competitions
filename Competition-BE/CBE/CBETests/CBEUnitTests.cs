@@ -730,6 +730,48 @@ namespace CBETests
                 Assert.Equal(expected, actual);
             }
         }
+        [Fact]
+        public async Task DeQueueShouldRemoveUserFromQueue()
+        {
+            using (var context = new CBEDbContext(options))
+            {
+                Competition c = new Competition();
+                ICompBL compBL = new CompBL(context);
+                User user = new User();
+                user.Auth0Id = "test";
+                IUserBL userBL = new UserBL(context);
+                LiveCompetition liveCompetition = new LiveCompetition();
+                liveCompetition.Name = "Test";
+                await compBL.AddLiveCompetition(liveCompetition);
+                await userBL.AddUser(user);
+                await compBL.AddToQueue(new UserQueue() { LiveCompetitionId = 1, UserId = 1 });
+                await compBL.DeQueueUserQueue(1);
+                int expected = 0;
+                int actual = (await compBL.GetLiveCompetitionUserQueue(1)).Count;
+                Assert.Equal(expected, actual);
+            }
+        }
+        [Fact]
+        public async Task DeleteUserFromQueueShouldRemoveUserFromQueue()
+        {
+            using (var context = new CBEDbContext(options))
+            {
+                Competition c = new Competition();
+                ICompBL compBL = new CompBL(context);
+                User user = new User();
+                user.Auth0Id = "test";
+                IUserBL userBL = new UserBL(context);
+                LiveCompetition liveCompetition = new LiveCompetition();
+                liveCompetition.Name = "Test";
+                await compBL.AddLiveCompetition(liveCompetition);
+                await userBL.AddUser(user);
+                await compBL.AddToQueue(new UserQueue() { LiveCompetitionId = 1, UserId = 1 });
+                await compBL.DeleteUserFromQueue(1,1);
+                int expected = 0;
+                int actual = (await compBL.GetLiveCompetitionUserQueue(1)).Count;
+                Assert.Equal(expected, actual);
+            }
+        }
         private void Seed()
         {
             using (var context = new CBEDbContext(options))
