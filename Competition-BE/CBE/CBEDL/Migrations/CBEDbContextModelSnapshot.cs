@@ -31,6 +31,9 @@ namespace CBEDL.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Name")
+                        .IsUnique();
+
                     b.ToTable("Categories");
                 });
 
@@ -62,14 +65,11 @@ namespace CBEDL.Migrations
                     b.Property<int>("UserCreatedId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("UserId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserCreatedId");
 
                     b.ToTable("Competitions");
                 });
@@ -163,6 +163,24 @@ namespace CBEDL.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("CBEModels.UserQueue", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("LiveCompetitionId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("EnterTime")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("UserId", "LiveCompetitionId");
+
+                    b.HasIndex("LiveCompetitionId");
+
+                    b.ToTable("UserQueues");
+                });
+
             modelBuilder.Entity("CBEModels.Competition", b =>
                 {
                     b.HasOne("CBEModels.Category", "Category")
@@ -173,7 +191,9 @@ namespace CBEDL.Migrations
 
                     b.HasOne("CBEModels.User", "User")
                         .WithMany()
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserCreatedId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Category");
 
@@ -208,7 +228,7 @@ namespace CBEDL.Migrations
                         .IsRequired();
 
                     b.HasOne("CBEModels.LiveCompetition", "LiveCompetition")
-                        .WithMany()
+                        .WithMany("LiveCompetitionTests")
                         .HasForeignKey("LiveCompetitionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -218,9 +238,33 @@ namespace CBEDL.Migrations
                     b.Navigation("LiveCompetition");
                 });
 
+            modelBuilder.Entity("CBEModels.UserQueue", b =>
+                {
+                    b.HasOne("CBEModels.LiveCompetition", "LiveCompetition")
+                        .WithMany()
+                        .HasForeignKey("LiveCompetitionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CBEModels.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("LiveCompetition");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("CBEModels.Competition", b =>
                 {
                     b.Navigation("CompetitionStats");
+                });
+
+            modelBuilder.Entity("CBEModels.LiveCompetition", b =>
+                {
+                    b.Navigation("LiveCompetitionTests");
                 });
 
             modelBuilder.Entity("CBEModels.User", b =>

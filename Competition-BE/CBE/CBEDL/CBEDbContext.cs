@@ -18,6 +18,7 @@ namespace CBEDL
         public DbSet<CompetitionStat> CompetitionStats { get; set; }
         public DbSet<LiveCompetition> LiveCompetitions { get; set; }
         public DbSet<LiveCompetitionTest> LiveCompetitionTests { get; set; }
+        public DbSet<UserQueue> UserQueues { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<User>()
@@ -43,6 +44,8 @@ namespace CBEDL
             modelBuilder.Entity<LiveCompetitionTest>()
                 .Property(lC => lC.Id)
                 .ValueGeneratedOnAdd();
+            modelBuilder.Entity<UserQueue>()
+                .HasKey(uQ => new { uQ.UserId, uQ.LiveCompetitionId });
 
         }
     }
