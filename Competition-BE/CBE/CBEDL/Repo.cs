@@ -117,6 +117,7 @@ namespace CBEDL
             try
             {
                 await _context.UserQueues.AddAsync(userQueue);
+                await _context.SaveChangesAsync();
                 return userQueue;
             }catch(Exception e)
             {
