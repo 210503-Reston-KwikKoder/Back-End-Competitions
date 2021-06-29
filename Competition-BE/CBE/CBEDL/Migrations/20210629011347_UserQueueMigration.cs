@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace CBEDL.Migrations
 {
-    public partial class MSSQLMigration : Migration
+    public partial class UserQueueMigration : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -82,7 +82,6 @@ namespace CBEDL.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserCreatedId = table.Column<int>(type: "int", nullable: false),
-                    UserId = table.Column<int>(type: "int", nullable: true),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CategoryId = table.Column<int>(type: "int", nullable: false),
@@ -100,11 +99,36 @@ namespace CBEDL.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Competitions_Users_UserId",
+                        name: "FK_Competitions_Users_UserCreatedId",
+                        column: x => x.UserCreatedId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserQueues",
+                columns: table => new
+                {
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    LiveCompetitionId = table.Column<int>(type: "int", nullable: false),
+                    EnterTime = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserQueues", x => new { x.UserId, x.LiveCompetitionId });
+                    table.ForeignKey(
+                        name: "FK_UserQueues_LiveCompetitions_LiveCompetitionId",
+                        column: x => x.LiveCompetitionId,
+                        principalTable: "LiveCompetitions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserQueues_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -135,14 +159,20 @@ namespace CBEDL.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_Categories_Name",
+                table: "Categories",
+                column: "Name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Competitions_CategoryId",
                 table: "Competitions",
                 column: "CategoryId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Competitions_UserId",
+                name: "IX_Competitions_UserCreatedId",
                 table: "Competitions",
-                column: "UserId");
+                column: "UserCreatedId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_CompetitionStats_CompetitionId",
@@ -160,6 +190,11 @@ namespace CBEDL.Migrations
                 column: "LiveCompetitionId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_UserQueues_LiveCompetitionId",
+                table: "UserQueues",
+                column: "LiveCompetitionId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Users_Auth0Id",
                 table: "Users",
                 column: "Auth0Id",
@@ -174,6 +209,9 @@ namespace CBEDL.Migrations
 
             migrationBuilder.DropTable(
                 name: "LiveCompetitionTests");
+
+            migrationBuilder.DropTable(
+                name: "UserQueues");
 
             migrationBuilder.DropTable(
                 name: "Competitions");
