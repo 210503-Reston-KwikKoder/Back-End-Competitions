@@ -496,7 +496,7 @@ namespace CBETests
             var settings = Options.Create(new ApiSettings());
 
             var controller = new CompetitionController(mockCompBL.Object, mockCatBL.Object, mockUserBL.Object, settings);
-            var result = await controller.GetAsync();
+            var result = await controller.GetCompAsync();
             Assert.NotNull(result);
             Assert.IsType<ActionResult<IEnumerable<CompetitionObject>>>(result);
         }

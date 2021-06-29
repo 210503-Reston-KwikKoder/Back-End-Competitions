@@ -36,7 +36,7 @@ namespace CBERest.Controllers
         /// </summary>
         /// <returns>List of competitions or 404 if they can't be found</returns>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CompetitionObject>>> GetAsync()
+        public async Task<ActionResult<IEnumerable<CompetitionObject>>> GetCompAsync()
         {
             try
             {
