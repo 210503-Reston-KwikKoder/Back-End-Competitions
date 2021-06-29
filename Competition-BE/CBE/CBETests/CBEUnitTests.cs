@@ -685,6 +685,26 @@ namespace CBETests
             }
             Assert.Equal(actual, expected);
         }
+        [Fact]
+        public async Task AddToQueueShouldAddToUserQueue()
+        {
+            using (var context = new CBEDbContext(options))
+            {
+                Competition c = new Competition();
+                ICompBL compBL = new CompBL(context);
+                User user = new User();
+                user.Auth0Id = "test";
+                IUserBL userBL = new UserBL(context);
+                LiveCompetition liveCompetition = new LiveCompetition();
+                liveCompetition.Name = "Test";
+                await compBL.AddLiveCompetition(liveCompetition);
+                await userBL.AddUser(user);
+                await compBL.AddToQueue(new UserQueue() { LiveCompetitionId = 1, UserId = 1 });
+                int expected = 1;
+                int actual = (await compBL.GetLiveCompetitionUserQueue(1)).Count;
+                Assert.Equal(expected, actual);
+            }
+        }
         private void Seed()
         {
             using (var context = new CBEDbContext(options))
