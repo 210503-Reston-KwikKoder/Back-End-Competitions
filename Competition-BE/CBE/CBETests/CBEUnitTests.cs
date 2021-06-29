@@ -120,7 +120,28 @@ namespace CBETests
                 Assert.Equal(testForComp, actual);
             }
         }
-
+        [Fact]
+        public async Task BadCompetitionStringShouldBeAccessed()
+        {
+            using (var context = new CBEDbContext(options))
+            {
+                Competition c = new Competition();
+                User user = new User();
+                user.Auth0Id = "test";
+                IUserBL userBL = new UserBL(context);
+                ICategoryBL categoryBL = new CategoryBL(context);
+                //IUserStatBL userStatBL = new UserStatBL(context);
+                ICompBL compBL = new CompBL(context);
+                Category category = new Category();
+                category.Name = 1;
+                await categoryBL.AddCategory(category);
+                await userBL.AddUser(user);
+                Category category1 = await categoryBL.GetCategory(1);
+                string testForComp = "Console.WriteLine('Hello World');";
+                string actual = await compBL.GetCompString(-1);
+                Assert.Null(actual);
+            }
+        }
         /// <summary>
         /// Making sure competition adds a single entry without error
         /// </summary>
@@ -251,7 +272,50 @@ namespace CBETests
                 Assert.Equal(expected, actual);
             }
         }
-
+        [Fact]
+        public async Task BadCompStatsShouldBeNull() { 
+            using (var context = new CBEDbContext(options))
+            {
+                Competition c = new Competition();
+                User user = new User();
+                user.Auth0Id = "test";
+                IUserBL userBL = new UserBL(context);
+                ICategoryBL categoryBL = new CategoryBL(context);
+                // IUserStatBL userStatBL = new UserStatBL(context);
+                ICompBL compBL = new CompBL(context);
+                Category category = new Category();
+                category.Name = 1;
+                await categoryBL.AddCategory(category);
+                await userBL.AddUser(user);
+                user = new User();
+                user.Auth0Id = "test1";
+                await userBL.AddUser(user);
+                user = new User();
+                user.Auth0Id = "test2";
+                await userBL.AddUser(user);
+                Category category1 = await categoryBL.GetCategory(1);
+                string testForComp = "Console.WriteLine('Hello World');";
+                int compId = await compBL.AddCompetition(DateTime.Now, DateTime.Now, category1.Id, "name", 1, testForComp);
+                CompetitionStat competitionStat = new CompetitionStat();
+                competitionStat.WPM = 50;
+                competitionStat.UserId = 1;
+                competitionStat.CompetitionId = compId;
+                await compBL.InsertCompStatUpdate(competitionStat, 100, 6);
+                competitionStat = new CompetitionStat();
+                competitionStat.WPM = 30;
+                competitionStat.UserId = 2;
+                competitionStat.CompetitionId = compId;
+                await compBL.InsertCompStatUpdate(competitionStat, 100, 6);
+                competitionStat = new CompetitionStat();
+                competitionStat.WPM = 40;
+                competitionStat.UserId = 3;
+                competitionStat.CompetitionId = compId;
+                await compBL.InsertCompStatUpdate(competitionStat, 100, 6);
+                int actual = (await compBL.GetCompetitionStats(-1)).Count;
+                int expected = 0;
+                Assert.Equal(expected, actual);
+            }
+        }
         [Fact]
         public async Task SnippetShouldGetRandomQuote()
         {
@@ -458,7 +522,7 @@ namespace CBETests
             using (var context = new CBEDbContext(options))
             {
                 ICompBL compBL = new CompBL(context);
-                Assert.Null(await compBL.GetCompetition(1));
+                Assert.Null(await compBL.GetCompetition(-1));
             }
         }
 
