@@ -28,11 +28,11 @@ namespace CBEDL
                 .HasIndex(user => user.Auth0Id)
                 .IsUnique();
             modelBuilder.Entity<Category>()
-                .HasIndex(cat => cat.Name)
-                .IsUnique();
-            modelBuilder.Entity<Category>()
                 .Property(cat => cat.Id)
                 .ValueGeneratedOnAdd();
+            modelBuilder.Entity<Category>()
+                .HasIndex(cat => cat.Name)
+                .IsUnique();
             modelBuilder.Entity<Competition>()
                 .Property(comp => comp.Id)
                 .ValueGeneratedOnAdd();

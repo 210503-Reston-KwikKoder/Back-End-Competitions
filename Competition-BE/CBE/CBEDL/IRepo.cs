@@ -133,5 +133,29 @@ namespace CBEDL
         /// </summary>
         /// <returns>List of live competitions, empty if none exist</returns>
         Task<List<LiveCompetition>> GetLiveCompetitions();
+        /// <summary>
+        /// Adds a given UserQueue to the database
+        /// </summary>
+        /// <param name="userQueue">UserQueue to be added</param>
+        /// <returns>UserQueue added or null on error</returns>
+        Task<UserQueue> AddToQueue(UserQueue userQueue);
+        /// <summary>
+        /// Gets all the associated UserQueue items with a given live competition
+        /// </summary>
+        /// <param name="liveCompId">Live competition Id in order to find the user queue</param>
+        /// <returns>List of user queue objects for the associated live competition, empty if none found</returns>
+        Task<List<UserQueue>> GetLiveCompetitionUserQueue(int liveCompId);
+        /// <summary>
+        /// Dequeues the oldest user in queue for competition and returns him or her
+        /// </summary>
+        /// <returns>Oldest UserQueue for a given </returns>
+        Task<UserQueue> DeQueueUserQueue(int liveCompId);
+        /// <summary>
+        /// Deletes a given user from a given live competition
+        /// </summary>
+        /// <param name="liveCompId">Id of live competition to delete user from</param>
+        /// <param name="UserId">Id of user to be deleted</param>
+        /// <returns>deleted user or null if not found</returns>
+        Task<UserQueue> DeleteUserFromQueue(int liveCompId, int userId);
     }
 }
