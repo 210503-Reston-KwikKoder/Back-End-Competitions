@@ -13,7 +13,7 @@ using Microsoft.Extensions.Options;
 using CBERest.DTO;
 using Microsoft.AspNetCore.Mvc;
 using GACDRest.Controllers;
-
+using Microsoft.AspNetCore.Http;
 namespace CBETests
 {
     public class CBEUnitTests
@@ -395,6 +395,16 @@ namespace CBETests
                 Assert.Equal(expected, actual);
             }
         }
+        [Fact]
+        public async Task GettingABadCategoryShouldReturnNull()
+        {
+            using (var context = new CBEDbContext(options))
+            {
+                ICategoryBL categoryBL = new CategoryBL(context);
+                Category category1 = await categoryBL.GetCategoryById(-1);
+                Assert.Null(category1);
+            }
+        }
         /// <summary>
         /// Makes sure competition will show that count is one when we add a competition
         /// </summary>
@@ -567,7 +577,21 @@ namespace CBETests
             Assert.NotNull(result);
             Assert.IsType<ActionResult<CompetitionContent>>(result);
         }
+        [Fact]
+        public async Task CompetitionTestControllerShouldReturn404()
+        {
+            var mockCompBL = new Mock<ICompBL>();
+            mockCompBL.Setup(x => x.GetCompStuff(1)).ReturnsAsync(Tuple.Create("author", "string", 1));
+            var mockCatBL = new Mock<ICategoryBL>();
+            mockCatBL.Setup(x => x.GetCategoryById(1)).ReturnsAsync(new Category());
+            var mockUserBL = new Mock<IUserBL>();
 
+            var controller = new CompetitonTestsController(mockUserBL.Object, mockCatBL.Object, mockCompBL.Object);
+            var result = await controller.Get(-1);
+            var returnedStatus = result.Result as NotFoundResult;
+            Assert.Equal(returnedStatus.StatusCode, StatusCodes.Status404NotFound);
+
+        }
         [Fact]
         public void CheckScopeAuthShouldThrowAnexception()
         {
@@ -685,6 +709,7 @@ namespace CBETests
             }
             Assert.Equal(actual, expected);
         }
+
         [Fact]
         public async Task AddToQueueShouldAddToUserQueue()
         {
