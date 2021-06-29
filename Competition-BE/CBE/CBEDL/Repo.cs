@@ -112,6 +112,19 @@ namespace CBEDL
             }
         }
 
+        public async Task<UserQueue> AddToQueue(UserQueue userQueue)
+        {
+            try
+            {
+                await _context.UserQueues.AddAsync(userQueue);
+                return userQueue;
+            }catch(Exception e)
+            {
+                Log.Error(e.StackTrace);
+                return null;
+            }
+        }
+
         public async Task<User> AddUser(User user)
         {
             try
@@ -125,6 +138,50 @@ namespace CBEDL
             catch (Exception e)
             {
                 Log.Error(e.Message);
+                return null;
+            }
+        }
+
+        public async Task<UserQueue> DeleteUserFromQueue(int liveCompId, int userId)
+        {
+            try {
+                UserQueue userQueue = await(from uQ in _context.UserQueues
+                                            where uQ.LiveCompetitionId == liveCompId
+                                            && uQ.UserId == userId
+                                            select uQ).SingleAsync();
+                await Task.Run(() =>
+                {
+                    _context.Remove(userQueue);
+                });
+                await _context.SaveChangesAsync();
+                return userQueue;
+            }
+            catch (Exception e) {
+                Log.Error(e.StackTrace);
+                Log.Error("User was not found in live competition");
+                return null;
+            }
+        }
+
+        public async Task<UserQueue> DeQueueUserQueue(int liveCompId)
+        {
+            try
+            {
+                UserQueue nextUserInQueue = await (from uQ in _context.UserQueues
+                                                   where uQ.LiveCompetitionId == liveCompId
+                                                   orderby uQ.EnterTime ascending
+                                                   select uQ).FirstAsync();
+                await Task.Run(() =>
+                {
+                    _context.Remove(nextUserInQueue);
+                });
+                await _context.SaveChangesAsync();
+                return nextUserInQueue;
+            }
+            catch(Exception e)
+            {
+                Log.Error("Empty Queue for competition");
+                Log.Error(e.StackTrace);
                 return null;
             }
         }
@@ -312,6 +369,23 @@ namespace CBEDL
                 Log.Information("No competitions found returning empty list");
                 Log.Information(e.Message);
                 return new List<LiveCompetitionTest>();
+            }
+        }
+
+        public async Task<List<UserQueue>> GetLiveCompetitionUserQueue(int liveCompId)
+        {
+            try
+            {
+                List<UserQueue> userQueues = await(from uQ in _context.UserQueues
+                                                   where uQ.LiveCompetitionId == liveCompId
+                                                   orderby uQ.EnterTime ascending
+                                                   select uQ).ToListAsync();
+                return userQueues;
+            }catch(Exception e)
+            {
+                Log.Information("No user queues found returning new list");
+                Log.Information(e.Message);
+                return new List<UserQueue>();
             }
         }
 

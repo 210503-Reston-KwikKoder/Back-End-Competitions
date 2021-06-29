@@ -51,6 +51,23 @@ namespace CBEBL
             return await _repo.AddLiveCompetitionTest(liveCompetitionTest);
         }
 
+        public async Task<UserQueue> AddToQueue(UserQueue userQueue)
+        {
+            userQueue.EnterTime = DateTime.Now;
+            return await _repo.AddToQueue(userQueue);
+
+        }
+
+        public async Task<UserQueue> DeleteUserFromQueue(int liveCompId, int userId)
+        {
+            return await _repo.DeleteUserFromQueue(liveCompId, userId);
+        }
+
+        public async Task<UserQueue> DeQueueUserQueue(int liveCompId)
+        {
+            return await _repo.DeQueueUserQueue(liveCompId);
+        }
+
         public async Task<List<Competition>> GetAllCompetitions()
         {
             return await _repo.GetAllCompetitions();
@@ -89,6 +106,11 @@ namespace CBEBL
         public async Task<List<LiveCompetitionTest>> GetLiveCompetitionTestsForCompetition(int compId)
         {
             return await _repo.GetLiveCompetitionTestsForCompetition(compId);
+        }
+
+        public async Task<List<UserQueue>> GetLiveCompetitionUserQueue(int liveCompId)
+        {
+            return await _repo.GetLiveCompetitionUserQueue(liveCompId);
         }
 
         public async Task<int> InsertCompStatUpdate(CompetitionStat competitionStat, int numberWords, int numberErrors)
