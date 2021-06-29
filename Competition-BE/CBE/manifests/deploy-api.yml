@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: competition-api
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: competition-api
+  template:
+    metadata:
+      labels:
+        app: competition-api
+    spec:
+      containers:
+        - name: competition-api
+          image: kwikkoder/competition-api:${IMAGE_TAG}
+          # reference to my dockerhub repo image
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi
+          env:
+          - name: ASPNETCORE_ENVIRONMENT
+            value: "Development"
+          ports:
+            - containerPort: 80
+          volumeMounts:
+          - name: secrets
+            mountPath: /app/secrets
+            readOnly: true
+
+      volumes:
+      - name: secrets
+        secret:
+          secretName: competition-secret
+# the container port is you defining the docker run -p portYou'reExposing:containerPort
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: competition-api
+spec:
+  ports:
+    - targetPort: 80
+      port: 5001
+  # This is the port the service is exposing
+  selector:
+    app: competition-api

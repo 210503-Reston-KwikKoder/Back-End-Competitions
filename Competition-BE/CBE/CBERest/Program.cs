@@ -37,6 +37,7 @@ namespace CBERest
         {
             var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
             var configuration = new ConfigurationBuilder()
+                .AddJsonFile("secrets/appsettings.json", optional: true, reloadOnChange: true)
                 .AddJsonFile(
                     $"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json",
                     optional: false)
@@ -72,6 +73,7 @@ namespace CBERest
             })
             .ConfigureAppConfiguration(configuration =>
             {
+                configuration.AddJsonFile("secrets/appsettings.json", optional: true, reloadOnChange: true);
                 configuration.AddJsonFile(
                     $"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json",
                     optional: false);
