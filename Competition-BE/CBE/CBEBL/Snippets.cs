@@ -41,7 +41,8 @@ namespace CBEBL
         }
         public async Task<string> GetAuth0String()
         {
-            return _ApiSettings.authString;
+           return await Task.Run(() => { return _ApiSettings.authString; });
+           
         }
         public async Task<TestMaterial> GetCodeSnippet(int id)
         {

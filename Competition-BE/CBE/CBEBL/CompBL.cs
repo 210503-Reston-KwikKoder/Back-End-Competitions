@@ -122,7 +122,11 @@ namespace CBEBL
                 double numErrors = (double)numberErrors;
                 numErrors = numErrors / 5;
                 competitionStat.Accuracy = (numWords - numErrors) / numWords;
-                if (await _repo.AddCompStat(competitionStat) == null) throw new ArgumentNullException("Error adding competition stat");
+                if (await _repo.AddCompStat(competitionStat) == null)
+                {
+                    Log.Error("Repo could not add competitionStat");
+                    return -1;
+                }
                 List<CompetitionStat> competitionStats = await _repo.GetCompStats(competitionStat.CompetitionId);
                 int i = 0;
                 foreach (CompetitionStat c in competitionStats)

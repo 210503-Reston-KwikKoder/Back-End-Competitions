@@ -83,8 +83,6 @@ namespace GACDRest.Controllers
                 category.Name = typeTest.categoryId;
                 await _categoryBL.AddCategory(category);
             }
-            
-            Category category1 = await _categoryBL.GetCategory(typeTest.categoryId);
             User user1 = await _userBL.GetUser(UserID);
             CompetitionStat competitionStat = new CompetitionStat();
             competitionStat.WPM = typeTest.wpm;
