@@ -112,6 +112,21 @@ namespace CBEDL
             }
         }
 
+        public async Task<LiveCompStat> AddLiveCompStat(LiveCompStat liveCompStat)
+        {
+            try
+            {
+                await _context.LiveCompStats.AddAsync(liveCompStat);
+                await _context.SaveChangesAsync();
+                return liveCompStat;
+            }
+            catch (Exception e)
+            {
+                Log.Error(e.StackTrace);
+                return null;
+            }
+        }
+
         public async Task<UserQueue> AddToQueue(UserQueue userQueue)
         {
             try
@@ -387,6 +402,24 @@ namespace CBEDL
                 Log.Information("No user queues found returning new list");
                 Log.Information(e.Message);
                 return new List<UserQueue>();
+            }
+        }
+
+        public async Task<LiveCompStat> GetLiveCompStat(int liveCompId, int userId)
+        {
+            try
+            {
+                LiveCompStat liveCompStat = await(from lCS in _context.LiveCompStats
+                                                  where lCS.LiveCompetitionId == liveCompId
+                                                  && lCS.UserId == userId
+                                                  select lCS).SingleAsync();
+                return liveCompStat;
+            }
+            catch (Exception e)
+            {
+                Log.Information("LiveCompStat Not Found");
+                Log.Information(e.StackTrace);
+                return null;
             }
         }
 
