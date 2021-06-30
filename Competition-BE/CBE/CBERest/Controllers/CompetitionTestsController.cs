@@ -22,13 +22,27 @@ namespace GACDRest.Controllers
         private readonly ICategoryBL _categoryBL;
         private readonly ICompBL _compBL;
         private readonly IUserBL _userBL;
+        private readonly ISnippets _snippetsService;
 
-        public CompetitonTestsController(IUserBL userBL, ICategoryBL categoryBL, ICompBL compBL)
+        public CompetitonTestsController(IUserBL userBL, ICategoryBL categoryBL, ICompBL compBL, ISnippets snippets)
         {
             _compBL = compBL;
             _compBL = compBL;
             _userBL = userBL;
             _categoryBL = categoryBL;
+            _snippetsService = snippets;
+        }
+        /// <summary>
+        /// Used to get a random quote on -1 or language number from Octokit.Language to search in 
+        /// https://raw.githubusercontent.com/ for a random file in that language to get for coding test
+        /// </summary>
+        /// <param name="id">Category to get test from</param>
+        /// <returns> TestMaterial DTO or 500 on internal server error</returns>
+        [HttpGet("newtest/{id}")]
+        public async Task<TestMaterial> CodeSnippet(int id)
+        {
+            if (id == -1) return await _snippetsService.GetRandomQuote();
+            else return await _snippetsService.GetCodeSnippet(id);
         }
         /// <summary>
         /// GET /api/CompetitionStats/{id}

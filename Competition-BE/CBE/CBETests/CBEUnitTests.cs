@@ -635,8 +635,8 @@ namespace CBETests
             var mockCatBL = new Mock<ICategoryBL>();
             mockCatBL.Setup(x => x.GetCategoryById(1)).ReturnsAsync(new Category());
             var mockUserBL = new Mock<IUserBL>();
-
-            var controller = new CompetitonTestsController(mockUserBL.Object, mockCatBL.Object, mockCompBL.Object);
+            var mockSnippets = new Mock<ISnippets>();
+            var controller = new CompetitonTestsController(mockUserBL.Object, mockCatBL.Object, mockCompBL.Object, mockSnippets.Object);
             var result = await controller.Get(1);
             Assert.NotNull(result);
             Assert.IsType<ActionResult<CompetitionContent>>(result);
@@ -649,8 +649,8 @@ namespace CBETests
             var mockCatBL = new Mock<ICategoryBL>();
             mockCatBL.Setup(x => x.GetCategoryById(1)).ReturnsAsync(new Category());
             var mockUserBL = new Mock<IUserBL>();
-
-            var controller = new CompetitonTestsController(mockUserBL.Object, mockCatBL.Object, mockCompBL.Object);
+            var mockSnippets = new Mock<ISnippets>();
+            var controller = new CompetitonTestsController(mockUserBL.Object, mockCatBL.Object, mockCompBL.Object, mockSnippets.Object);
             var result = await controller.Get(-1);
             var returnedStatus = result.Result as NotFoundResult;
             Assert.Equal(returnedStatus.StatusCode, StatusCodes.Status404NotFound);
@@ -724,8 +724,7 @@ namespace CBETests
             var mockCatBL = new Mock<ICategoryBL>();
             var mockUserBL = new Mock<IUserBL>();
             var settings = Options.Create(new ApiSettings());
-            var snippets = new Mock<ISnippets>();
-            var controller = new LiveCompetitionController(mockCompBL.Object, mockCatBL.Object, mockUserBL.Object, settings, snippets.Object);
+            var controller = new LiveCompetitionController(mockCompBL.Object, mockCatBL.Object, mockUserBL.Object, settings);
             var result = await controller.Get();
             int actual = 0;
             int expected = 2;
@@ -762,8 +761,7 @@ namespace CBETests
             mockCatBL.Setup(x => x.GetCategoryById(1)).ReturnsAsync(new Category() { Id = 1, Name = 2 });
             var mockUserBL = new Mock<IUserBL>();
             var settings = Options.Create(new ApiSettings());
-            var snippets = new Mock<ISnippets>();
-            var controller = new LiveCompetitionController(mockCompBL.Object, mockCatBL.Object, mockUserBL.Object, settings, snippets.Object);
+            var controller = new LiveCompetitionController(mockCompBL.Object, mockCatBL.Object, mockUserBL.Object, settings);
             var result = await controller.Get(1);
             int actual = 0;
             int expected = 2;
