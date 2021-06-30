@@ -157,5 +157,18 @@ namespace CBEDL
         /// <param name="UserId">Id of user to be deleted</param>
         /// <returns>deleted user or null if not found</returns>
         Task<UserQueue> DeleteUserFromQueue(int liveCompId, int userId);
+        /// <summary>
+        /// Adds a livecompstat to a database 
+        /// </summary>
+        /// <param name="liveCompStat">livecompstat to be added to the database</param>
+        /// <returns>live comp stat to database </returns>
+        Task<LiveCompStat> AddLiveCompStat(LiveCompStat liveCompStat);
+        /// <summary>
+        /// Gets a live competition stat for a a given livecompid / userId
+        /// </summary>
+        /// <param name="liveCompId">competition id of livecompstat</param>
+        /// <param name="userId">user id of user in competition</param>
+        /// <returns>Live competition stat for a given user in a competition</returns>
+        Task<LiveCompStat> GetLiveCompStat(int liveCompId, int userId);
     }
 }

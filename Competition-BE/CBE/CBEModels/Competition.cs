@@ -12,7 +12,7 @@ namespace CBEModels
         public Competition() { }
         public int Id { get; set; }
         [ForeignKey("User")]
-        public int UserCreatedId { get; set; }
+        public int? UserCreatedId { get; set; }
         public User User { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
@@ -22,7 +22,6 @@ namespace CBEModels
         public string TestString { get; set; }
         public string TestAuthor { get; set; }
 
-        public List<CompetitionStat> CompetitionStats { get; set; }
-        
+       
     }
 }
