@@ -21,19 +21,18 @@ namespace CBERest.Controllers
     [ApiController]
     public class LiveCompetitionController : ControllerBase
     {
-        private readonly ISnippets _snippetsService;
         private readonly ICompBL _compBL;
         private readonly ICategoryBL _categoryBL;
         private readonly IUserBL _userBL;
         private readonly ApiSettings _ApiSettings;
 
-        public LiveCompetitionController(ICompBL compBL, ICategoryBL catBL, IUserBL uBL, IOptions<ApiSettings> settings, ISnippets snippets)
+        public LiveCompetitionController(ICompBL compBL, ICategoryBL catBL, IUserBL uBL, IOptions<ApiSettings> settings)
         {
             _compBL = compBL;
             _categoryBL = catBL;
             _userBL = uBL;
             _ApiSettings = settings.Value;
-            _snippetsService = snippets;
+            
         }
         // GET: api/<LiveCompetitionController>
         [HttpGet]
@@ -90,10 +89,9 @@ namespace CBERest.Controllers
         {
             try
             {
-                TestMaterial newTest = await _snippetsService.GetCodeSnippet(liveCompTestInput.category);
                 LiveCompetitionTest liveCompetitionTest = new LiveCompetitionTest();
-                liveCompetitionTest.TestAuthor = newTest.author;
-                liveCompetitionTest.TestString = newTest.content;
+                liveCompetitionTest.TestAuthor = liveCompTestInput.testAuthor;
+                liveCompetitionTest.TestString = liveCompTestInput.testString;
                 if (await _categoryBL.GetCategory(liveCompTestInput.category) == null)
                 {
                     Category category = new Category();

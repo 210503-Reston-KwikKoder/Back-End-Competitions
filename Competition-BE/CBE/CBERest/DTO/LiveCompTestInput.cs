@@ -10,5 +10,7 @@ namespace CBERest.DTO
         public LiveCompTestInput() { }
         public int compId { get; set; }
         public int category { get; set; }
+        public string testString { get; set; }
+        public string testAuthor { get; set; }
     }
 }
