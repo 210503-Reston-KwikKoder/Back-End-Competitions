@@ -58,6 +58,19 @@ namespace CBEBL
 
         }
 
+        public async Task<LiveCompStat> AddUpdateLiveCompStat(int liveCompId, int userId, bool won)
+        {
+            try
+            {
+                return await _repo.AddUpdateLiveCompStat(liveCompId, userId, won);
+            }catch(Exception e)
+            {
+                Log.Error("Unusual error, check to make sure database is correctly persisting users and competitions");
+                Log.Error(e.StackTrace);
+                return null;
+            }
+        }
+
         public async Task<UserQueue> DeleteUserFromQueue(int liveCompId, int userId)
         {
             return await _repo.DeleteUserFromQueue(liveCompId, userId);
@@ -111,6 +124,11 @@ namespace CBEBL
         public async Task<List<UserQueue>> GetLiveCompetitionUserQueue(int liveCompId)
         {
             return await _repo.GetLiveCompetitionUserQueue(liveCompId);
+        }
+
+        public async Task<List<LiveCompStat>> GetLiveCompStats(int liveCompId)
+        {
+            return await _repo.GetLiveCompStats(liveCompId);
         }
 
         public async Task<int> InsertCompStatUpdate(CompetitionStat competitionStat, int numberWords, int numberErrors)
