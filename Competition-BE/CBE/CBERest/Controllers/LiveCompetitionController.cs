@@ -32,7 +32,7 @@ namespace CBERest.Controllers
             _categoryBL = catBL;
             _userBL = uBL;
             _ApiSettings = settings.Value;
-            
+
         }
         // GET: api/<LiveCompetitionController>
         [HttpGet]
@@ -112,7 +112,7 @@ namespace CBERest.Controllers
             }
         }
         [HttpDelete("{id}/LCQ/NextUser")]
-        public async Task<ActionResult<QueueModel>> DeQueue (int id)
+        public async Task<ActionResult<QueueModel>> DeQueue(int id)
         {
             try
             {
@@ -132,52 +132,52 @@ namespace CBERest.Controllers
                     queueModel.name = deResponse.name;
                     queueModel.userName = deResponse.username;
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     Log.Information(e.Message);
                 }
                 return queueModel;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Log.Error(e.StackTrace);
                 return NotFound();
             }
         }
         [HttpGet("{id}/LCQ")]
-        public async Task<ActionResult<List<QueueModel>>> GetLCQ (int id)
+        public async Task<ActionResult<List<QueueModel>>> GetLCQ(int id)
         {
             List<UserQueue> userQueues = await _compBL.GetLiveCompetitionUserQueue(id);
             List<QueueModel> queueModels = new List<QueueModel>();
             if (userQueues.Count == 0) return NotFound();
             else foreach (UserQueue userQueue in userQueues)
-            {
-                QueueModel queueModel = new QueueModel();
-                queueModel.enterTime = userQueue.EnterTime;
-                queueModel.userId = userQueue.UserId;
-                try
                 {
-                    User u = await _userBL.GetUser(userQueue.UserId);
-                    dynamic AppBearerToken = GetApplicationToken();
-                    var client = new RestClient($"https://kwikkoder.us.auth0.com/api/v2/users/{u.Auth0Id}");
-                    var request = new RestRequest(Method.GET);
-                    request.AddHeader("authorization", "Bearer " + AppBearerToken.access_token);
-                    IRestResponse restResponse = await client.ExecuteAsync(request);
-                    dynamic deResponse = JsonConvert.DeserializeObject(restResponse.Content);
-                    queueModel.name = deResponse.name;
-                    queueModel.userName = deResponse.username;
+                    QueueModel queueModel = new QueueModel();
+                    queueModel.enterTime = userQueue.EnterTime;
+                    queueModel.userId = userQueue.UserId;
+                    try
+                    {
+                        User u = await _userBL.GetUser(userQueue.UserId);
+                        dynamic AppBearerToken = GetApplicationToken();
+                        var client = new RestClient($"https://kwikkoder.us.auth0.com/api/v2/users/{u.Auth0Id}");
+                        var request = new RestRequest(Method.GET);
+                        request.AddHeader("authorization", "Bearer " + AppBearerToken.access_token);
+                        IRestResponse restResponse = await client.ExecuteAsync(request);
+                        dynamic deResponse = JsonConvert.DeserializeObject(restResponse.Content);
+                        queueModel.name = deResponse.name;
+                        queueModel.userName = deResponse.username;
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Information(e.Message);
+                    }
+                    queueModels.Add(queueModel);
                 }
-                catch (Exception e)
-                {
-                    Log.Information(e.Message);
-                }
-                queueModels.Add(queueModel);
-            }
             return queueModels;
         }
         [Authorize]
         [HttpPut("{id}/LCQ")]
-        public async Task<ActionResult> EnQueueUser (int id)
+        public async Task<ActionResult> EnQueueUser(int id)
         {
             string UserID = this.User.FindFirst(ClaimTypes.NameIdentifier).Value;
             if (await _userBL.GetUser(UserID) == null)
@@ -196,7 +196,7 @@ namespace CBERest.Controllers
         }
         [Authorize]
         [HttpDelete("{id}/LCQ")]
-        public async Task<ActionResult> Delete (int id)
+        public async Task<ActionResult> Delete(int id)
         {
             try
             {
@@ -205,12 +205,59 @@ namespace CBERest.Controllers
                 if (await _compBL.DeleteUserFromQueue(id, u.Id) == null) return NotFound();
                 else return Ok();
             }
-            catch( Exception e)
+            catch (Exception e)
             {
                 Log.Error(e.StackTrace);
                 return NotFound();
             }
-            
+
+        }
+        [HttpGet("{id}/LCS")]
+        public async Task<ActionResult<IEnumerable<LiveCompStatModel>>> GetModels(int id)
+        {
+            List<LiveCompStatModel> lcsModels = new List<LiveCompStatModel>();
+            List<LiveCompStat> liveCompStats = await _compBL.GetLiveCompStats(id);
+            if (liveCompStats.Count == 0) return NotFound();
+            else foreach (LiveCompStat liveCompStat in liveCompStats)
+                {
+                    LiveCompStatModel lcsModel = new LiveCompStatModel();
+                    lcsModel.Losses = liveCompStat.Losses;
+                    lcsModel.Wins = liveCompStat.Wins;
+                    lcsModel.WLRatio = liveCompStat.WLRatio;
+                    try
+                    {
+                        User u = await _userBL.GetUser(liveCompStat.UserId);
+                        dynamic AppBearerToken = GetApplicationToken();
+                        var client = new RestClient($"https://kwikkoder.us.auth0.com/api/v2/users/{u.Auth0Id}");
+                        var request = new RestRequest(Method.GET);
+                        request.AddHeader("authorization", "Bearer " + AppBearerToken.access_token);
+                        IRestResponse restResponse = await client.ExecuteAsync(request);
+                        dynamic deResponse = JsonConvert.DeserializeObject(restResponse.Content);
+                        lcsModel.name = deResponse.name;
+                        lcsModel.userName = deResponse.username;
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Information(e.Message);
+                    }
+                    lcsModels.Add(lcsModel);
+                }
+            return lcsModels;
+        }
+        [Authorize]
+        [HttpPut("{id}/LCS")]
+        public async Task<ActionResult> PutResult(int id, LCSResultInput lCSResultInput)
+        {
+            string UserID = this.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            if (await _userBL.GetUser(UserID) == null)
+            {
+                User user = new User();
+                user.Auth0Id = UserID;
+                await _userBL.AddUser(user);
+            }
+            User u = await _userBL.GetUser(UserID);
+            if (await _compBL.AddUpdateLiveCompStat(id, u.Id, lCSResultInput.won) == null) return BadRequest();
+            else return Ok();
         }
         /// <summary>
         /// Private method to get application token for auth0 management 
