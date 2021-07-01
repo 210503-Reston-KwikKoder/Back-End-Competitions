@@ -112,18 +112,47 @@ namespace CBEDL
             }
         }
 
-        public async Task<LiveCompStat> AddLiveCompStat(LiveCompStat liveCompStat)
+        public async Task<LiveCompStat> AddUpdateLiveCompStat(int liveCompId, int userId, bool won)
         {
             try
             {
-                await _context.LiveCompStats.AddAsync(liveCompStat);
+                LiveCompStat liveCompStat = await (from lCS in _context.LiveCompStats
+                                                   where lCS.LiveCompetitionId == liveCompId
+                                                   && lCS.UserId == userId
+                                                   select lCS).SingleAsync();
+                if (won) liveCompStat.Wins += 1;
+                else liveCompStat.Losses += 1;
+                double winDouble = (double)liveCompStat.Wins;
+                double lossDouble = (double)liveCompStat.Losses;
+                liveCompStat.WLRatio = winDouble / (winDouble + lossDouble);
                 await _context.SaveChangesAsync();
                 return liveCompStat;
             }
             catch (Exception e)
             {
-                Log.Error(e.StackTrace);
-                return null;
+                Log.Information(e.StackTrace);
+                Log.Information("Creating new live comp stat");
+                LiveCompStat liveCompStat = new LiveCompStat();
+                liveCompStat.LiveCompetitionId = liveCompId;
+                liveCompStat.UserId = userId;
+                if (won)
+                {
+                    liveCompStat.WLRatio = 1;
+                    liveCompStat.Wins = 1;
+                    liveCompStat.Losses = 0;
+                    await _context.LiveCompStats.AddAsync(liveCompStat);
+                    await _context.SaveChangesAsync();
+                    return liveCompStat;
+                }
+                else
+                {
+                    liveCompStat.WLRatio = 0;
+                    liveCompStat.Wins = 0;
+                    liveCompStat.Losses = 1;
+                    await _context.LiveCompStats.AddAsync(liveCompStat);
+                    await _context.SaveChangesAsync();
+                    return liveCompStat;
+                }
             }
         }
 
@@ -405,24 +434,6 @@ namespace CBEDL
             }
         }
 
-        public async Task<LiveCompStat> GetLiveCompStat(int liveCompId, int userId)
-        {
-            try
-            {
-                LiveCompStat liveCompStat = await(from lCS in _context.LiveCompStats
-                                                  where lCS.LiveCompetitionId == liveCompId
-                                                  && lCS.UserId == userId
-                                                  select lCS).SingleAsync();
-                return liveCompStat;
-            }
-            catch (Exception e)
-            {
-                Log.Information("LiveCompStat Not Found");
-                Log.Information(e.StackTrace);
-                return null;
-            }
-        }
-
         public async Task<User> GetUser(int id)
         {
             try
@@ -466,6 +477,23 @@ namespace CBEDL
                 Log.Error(e.Message);
                 Log.Error("Error adding competitionstat returning null");
                 return null;
+            }
+        }
+
+        public async Task<List<LiveCompStat>> GetLiveCompStats(int liveCompId)
+        {
+            try
+            {
+                List<LiveCompStat> liveCompStats = await(from lCS in _context.LiveCompStats
+                                                         where lCS.LiveCompetitionId == liveCompId
+                                                         orderby lCS.Wins
+                                                         select lCS).ToListAsync();
+                return liveCompStats;
+            }catch(Exception e)
+            {
+                Log.Information(e.StackTrace);
+                Log.Information("Sending back empty list for Get LCS");
+                return new List<LiveCompStat>();
             }
         }
     }
