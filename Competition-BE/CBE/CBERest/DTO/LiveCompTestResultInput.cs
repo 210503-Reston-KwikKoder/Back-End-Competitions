@@ -5,9 +5,10 @@ using System.Threading.Tasks;
 
 namespace CBERest.DTO
 {
-    public class LCSResultInput
+    public class LiveCompTestResultInput:TypeTestInput
     {
-        public LCSResultInput() { }
+        public LiveCompTestResultInput() { }
         public bool won { get; set; }
+        public int winStreak { get; set; }
     }
 }
