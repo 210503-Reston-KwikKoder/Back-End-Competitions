@@ -10,7 +10,9 @@ using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -260,7 +262,7 @@ namespace CBERest.Controllers
             if (await _compBL.AddUpdateLiveCompStat(id, u.Id, liveCompTestResultInput.won) == null) return BadRequest();
             else {
                 LiveCompTestResultOutput liveCompTestResultOutput = new LiveCompTestResultOutput();
-                liveCompTestResultOutput.auth0id = UserID;
+                liveCompTestResultOutput.auth0Id = UserID;
                 liveCompTestResultOutput.categoryId = liveCompTestResultInput.categoryId;
                 liveCompTestResultOutput.won = liveCompTestResultInput.won;
                 liveCompTestResultOutput.wpm = liveCompTestResultInput.wpm;
@@ -268,6 +270,19 @@ namespace CBERest.Controllers
                 liveCompTestResultOutput.date = liveCompTestResultInput.date;
                 liveCompTestResultOutput.numberoferrors = liveCompTestResultInput.numberoferrors;
                 liveCompTestResultOutput.winStreak = liveCompTestResultInput.winStreak;
+                try
+                {
+                    var objAsJson = JsonConvert.SerializeObject(liveCompTestResultOutput);
+                    var content = new StringContent(objAsJson, Encoding.UTF8, "application/json");
+                    var _httpClient = new HttpClient();
+                    var result = await _httpClient.PostAsync("http://kwikkoder.com/TypeTest/comptest", content);
+                }catch(Exception e)
+                {
+                    Log.Error(e.StackTrace);
+                    Log.Error("TypeTest not responding");
+
+                }
+
                 return Ok();
             }
         }
