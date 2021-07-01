@@ -8,6 +8,6 @@ namespace CBERest.DTO
     public class LiveCompTestResultOutput:LiveCompTestResultInput
     {
         public LiveCompTestResultOutput() { }
-        public string auth0id { get; set; }
+        public string auth0Id { get; set; }
     }
 }
