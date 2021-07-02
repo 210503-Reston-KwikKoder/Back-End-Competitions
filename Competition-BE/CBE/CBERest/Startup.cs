@@ -22,6 +22,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.HttpOverrides;
 
 namespace CBERest
 {
@@ -61,6 +62,11 @@ namespace CBERest
             });
             services.AddDbContext<CBEDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("CBEDB")));
             services.Configure<ApiSettings>(Configuration.GetSection("ApiSettings"));
+            services.Configure<ForwardedHeadersOptions>(options =>
+                {
+                options.ForwardedHeaders = ForwardedHeaders.XForwardedProto;
+                });
+                
             services.AddScoped<ISnippets, Snippets>();
             services.AddScoped<IUserBL, UserBL>();
             services.AddScoped<ICategoryBL, CategoryBL>();
@@ -108,8 +114,9 @@ namespace CBERest
             .AllowAnyMethod()
             .AllowAnyHeader());
 
-            app.UseHttpsRedirection();
 
+            app.UseHttpsRedirection();
+            
             app.UseSerilogRequestLogging();
 
             app.UseRouting();
