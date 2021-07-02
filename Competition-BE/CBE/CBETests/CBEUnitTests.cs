@@ -14,6 +14,9 @@ using CBERest.DTO;
 using Microsoft.AspNetCore.Mvc;
 using GACDRest.Controllers;
 using Microsoft.AspNetCore.Http;
+using System.Threading;
+using System.Security.Claims;
+
 namespace CBETests
 {
     public class CBEUnitTests
@@ -773,6 +776,123 @@ namespace CBETests
         }
 
         [Fact]
+        public async Task LiveCompetitionControllerShouldPost()
+        {
+            var mockCompBL = new Mock<ICompBL>();
+            mockCompBL.Setup(compBL => compBL.AddLiveCompetition(new LiveCompetition() { Id = 1, Name = "BZ" })).ReturnsAsync(1);
+            var mockCatBL = new Mock<ICategoryBL>();
+            var mockUserBL = new Mock<IUserBL>();
+            var settings = Options.Create(new ApiSettings());
+            var controller = new LiveCompetitionController(mockCompBL.Object, mockCatBL.Object, mockUserBL.Object, settings);
+            var result = await controller.PostAsync(new LiveCompInput() { Name = "BZ" });
+            var createResult = result as CreatedAtRouteResult;
+            Assert.NotNull(createResult);
+            Assert.True(createResult is CreatedAtRouteResult);
+            Assert.Equal(StatusCodes.Status201Created, createResult.StatusCode);
+        }
+
+        [Fact]
+        public async Task LiveCompetitionControllerShouldPut()
+        {
+            var mockCompBL = new Mock<ICompBL>();
+            mockCompBL.Setup(compBL => compBL.AddLiveCompetitionTest(new LiveCompetitionTest() { Id = 1, LiveCompetitionId = 1, TestString = "String", TestAuthor = "Author", CategoryId = 1 })).ReturnsAsync(
+                new LiveCompetitionTest() { Id = 1, LiveCompetitionId = 1, TestString = "String", TestAuthor = "Author", CategoryId = 1 }
+                );
+            var mockCatBL = new Mock<ICategoryBL>();
+            mockCatBL.Setup(catBL => catBL.GetCategory(1)).ReturnsAsync(new Category() { Id = 1, Name = 2 });
+            var mockUserBL = new Mock<IUserBL>();
+            var settings = Options.Create(new ApiSettings());
+            var controller = new LiveCompetitionController(mockCompBL.Object, mockCatBL.Object, mockUserBL.Object, settings);
+            var result = await controller.PutAsync(new LiveCompTestInput() { compId = 1, category = 1, testString = "String", testAuthor = "Author" });
+            Assert.NotNull(result);
+            Assert.IsType<OkResult>(result);
+        }
+
+        [Fact]
+        public async Task LiveCompetitionControllerPutShouldFail()
+        {
+            var mockCompBL = new Mock<ICompBL>();
+            mockCompBL.Setup(compBL => compBL.AddLiveCompetitionTest(new LiveCompetitionTest() { Id = 1, LiveCompetitionId = 1, TestString = "String", TestAuthor = "Author", CategoryId = 1 })).ReturnsAsync(
+                new LiveCompetitionTest() { Id = 1, LiveCompetitionId = 1, TestString = "String", TestAuthor = "Author", CategoryId = 1 }
+                );
+            var mockCatBL = new Mock<ICategoryBL>();
+            mockCatBL.Setup(catBL => catBL.GetCategory(1)).ReturnsAsync(new Category() { Id = 1, Name = 2 });
+            var mockUserBL = new Mock<IUserBL>();
+            var settings = Options.Create(new ApiSettings());
+            var controller = new LiveCompetitionController(mockCompBL.Object, mockCatBL.Object, mockUserBL.Object, settings);
+            var result = await controller.PutAsync(new LiveCompTestInput() { compId = 1, category = 50, testString = "String", testAuthor = "Author" });
+            Assert.NotNull(result);
+            Assert.IsType<NotFoundResult>(result);
+        }
+
+        [Fact]
+        public async Task LiveCompetitionDequeShouldDelete()
+        {
+            var mockCompBL = new Mock<ICompBL>();
+            mockCompBL.Setup(compBL => compBL.DeQueueUserQueue(1)).ReturnsAsync(new UserQueue() { UserId = 1, LiveCompetitionId = 1, EnterTime = new DateTime() });
+            var mockUserBL = new Mock<IUserBL>();
+            mockUserBL.Setup(userBL => userBL.GetUser(1)).ReturnsAsync(new User() { Id = 1, Auth0Id = "BZ", Revapoints = 5000 });
+            var mockCatBL = new Mock<ICategoryBL>();
+            var settings = Options.Create(new ApiSettings());
+            var controller = new LiveCompetitionController(mockCompBL.Object, mockCatBL.Object, mockUserBL.Object, settings);
+            var result = await controller.DeQueue(1);
+            Assert.NotNull(result);
+            Assert.IsType<ActionResult<QueueModel>>(result);
+        }
+
+        [Fact]
+        public async Task LiveCompetitionGetLCQShouldReturnList()
+        {
+            var mockCompBL = new Mock<ICompBL>();
+            mockCompBL.Setup(compBL => compBL.GetLiveCompetitionUserQueue(1)).ReturnsAsync(
+                new List<UserQueue>
+                {
+                    new UserQueue()
+                    {
+                        UserId = 1,
+                        LiveCompetitionId = 1,
+                        EnterTime = new DateTime()
+                    },
+                    new UserQueue()
+                    {
+                        UserId = 2,
+                        LiveCompetitionId = 1,
+                        EnterTime = new DateTime()
+                    }
+                });
+            var mockUserBL = new Mock<IUserBL>();
+            mockUserBL.Setup(userBL => userBL.GetUser(1)).ReturnsAsync(new User() { Id = 1, Auth0Id = "BZ", Revapoints = 5000 });
+            mockUserBL.Setup(userBL => userBL.GetUser(2)).ReturnsAsync(new User() { Id = 2, Auth0Id = "GF", Revapoints = 3000 });
+            var mockCatBL = new Mock<ICategoryBL>();
+            var settings = Options.Create(new ApiSettings());
+            var controller = new LiveCompetitionController(mockCompBL.Object, mockCatBL.Object, mockUserBL.Object, settings);
+            var result = await controller.GetLCQ(1);
+            Assert.NotNull(result);
+            Assert.IsType<ActionResult<List<QueueModel>>>(result);
+        }
+
+        [Fact]
+        public async Task LiveCompetitionControllerEnQueueUserShouldFail()
+        {
+            var mockCompBL = new Mock<ICompBL>();
+            mockCompBL.Setup(compBL => compBL.AddToQueue(new UserQueue() { UserId = 1, LiveCompetitionId = 1, EnterTime = new DateTime() })).ReturnsAsync(new UserQueue() { UserId = 1, LiveCompetitionId = 1, EnterTime = new DateTime() });
+            var mockUserBL = new Mock<IUserBL>();
+            mockUserBL.Setup(userBL => userBL.GetUser("BZ")).ReturnsAsync(new User() { Id = 1, Auth0Id = "BZ", Revapoints = 5000 });
+            var mockCatBL = new Mock<ICategoryBL>();
+            var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, "BZ")
+            }));
+            var settings = Options.Create(new ApiSettings());
+            var controller = new LiveCompetitionController(mockCompBL.Object, mockCatBL.Object, mockUserBL.Object, settings);
+            controller.ControllerContext = new ControllerContext();
+            controller.ControllerContext.HttpContext = new DefaultHttpContext { User = user };
+            var result = await controller.EnQueueUser(1);
+            Assert.NotNull(result);
+            Assert.IsType<NotFoundResult>(result);
+        }
+
+        [Fact]
         public async Task AddToQueueShouldAddToUserQueue()
         {
             using (var context = new CBEDbContext(options))
@@ -876,6 +996,7 @@ namespace CBETests
                 Assert.Equal(expected, actual);
             }
         }
+
         private void Seed()
         {
             using (var context = new CBEDbContext(options))
