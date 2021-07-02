@@ -10,7 +10,9 @@ using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -111,7 +113,7 @@ namespace CBERest.Controllers
                 return NotFound();
             }
         }
-        [HttpDelete("{id}/LCQ/NextUser")]
+        [HttpDelete("LCQ/NextUser/{id}")]
         public async Task<ActionResult<QueueModel>> DeQueue(int id)
         {
             try
@@ -144,7 +146,7 @@ namespace CBERest.Controllers
                 return NotFound();
             }
         }
-        [HttpGet("{id}/LCQ")]
+        [HttpGet("LCQ/{id}")]
         public async Task<ActionResult<List<QueueModel>>> GetLCQ(int id)
         {
             List<UserQueue> userQueues = await _compBL.GetLiveCompetitionUserQueue(id);
@@ -176,7 +178,7 @@ namespace CBERest.Controllers
             return queueModels;
         }
         [Authorize]
-        [HttpPut("{id}/LCQ")]
+        [HttpPut("LCQ/{id}")]
         public async Task<ActionResult> EnQueueUser(int id)
         {
             string UserID = this.User.FindFirst(ClaimTypes.NameIdentifier).Value;
@@ -195,7 +197,7 @@ namespace CBERest.Controllers
 
         }
         [Authorize]
-        [HttpDelete("{id}/LCQ")]
+        [HttpDelete("LCQ/{id}")]
         public async Task<ActionResult> Delete(int id)
         {
             try
@@ -212,7 +214,7 @@ namespace CBERest.Controllers
             }
 
         }
-        [HttpGet("{id}/LCS")]
+        [HttpGet("LCS/{id}")]
         public async Task<ActionResult<IEnumerable<LiveCompStatModel>>> GetModels(int id)
         {
             List<LiveCompStatModel> lcsModels = new List<LiveCompStatModel>();
@@ -245,8 +247,8 @@ namespace CBERest.Controllers
             return lcsModels;
         }
         [Authorize]
-        [HttpPut("{id}/LCS")]
-        public async Task<ActionResult> PutResult(int id, LCSResultInput lCSResultInput)
+        [HttpPut("LCS/{id}")]
+        public async Task<ActionResult> PutResult(int id, LiveCompTestResultInput liveCompTestResultInput)
         {
             string UserID = this.User.FindFirst(ClaimTypes.NameIdentifier).Value;
             if (await _userBL.GetUser(UserID) == null)
@@ -255,9 +257,34 @@ namespace CBERest.Controllers
                 user.Auth0Id = UserID;
                 await _userBL.AddUser(user);
             }
+
             User u = await _userBL.GetUser(UserID);
-            if (await _compBL.AddUpdateLiveCompStat(id, u.Id, lCSResultInput.won) == null) return BadRequest();
-            else return Ok();
+            if (await _compBL.AddUpdateLiveCompStat(id, u.Id, liveCompTestResultInput.won) == null) return BadRequest();
+            else {
+                LiveCompTestResultOutput liveCompTestResultOutput = new LiveCompTestResultOutput();
+                liveCompTestResultOutput.auth0Id = UserID;
+                liveCompTestResultOutput.categoryId = liveCompTestResultInput.categoryId;
+                liveCompTestResultOutput.won = liveCompTestResultInput.won;
+                liveCompTestResultOutput.wpm = liveCompTestResultInput.wpm;
+                liveCompTestResultOutput.timetakenms = liveCompTestResultInput.timetakenms;
+                liveCompTestResultOutput.date = liveCompTestResultInput.date;
+                liveCompTestResultOutput.numberoferrors = liveCompTestResultInput.numberoferrors;
+                liveCompTestResultOutput.winStreak = liveCompTestResultInput.winStreak;
+                try
+                {
+                    string resultJson = JsonConvert.SerializeObject(liveCompTestResultOutput);
+                    StringContent content = new StringContent(resultJson, Encoding.UTF8, "application/json");
+                    HttpClient httpClient = new HttpClient();
+                    HttpResponseMessage result = await httpClient.PostAsync("http://20.69.69.228/TypeTest/comptest", content);
+                }catch(Exception e)
+                {
+                    Log.Error(e.StackTrace);
+                    Log.Error("TypeTest not responding");
+
+                }
+
+                return Ok();
+            }
         }
         /// <summary>
         /// Private method to get application token for auth0 management 
