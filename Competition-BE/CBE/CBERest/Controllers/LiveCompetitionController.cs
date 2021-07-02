@@ -272,10 +272,10 @@ namespace CBERest.Controllers
                 liveCompTestResultOutput.winStreak = liveCompTestResultInput.winStreak;
                 try
                 {
-                    var objAsJson = JsonConvert.SerializeObject(liveCompTestResultOutput);
-                    var content = new StringContent(objAsJson, Encoding.UTF8, "application/json");
-                    var _httpClient = new HttpClient();
-                    var result = await _httpClient.PostAsync("http://kwikkoder.com/TypeTest/comptest", content);
+                    string resultJson = JsonConvert.SerializeObject(liveCompTestResultOutput);
+                    StringContent content = new StringContent(resultJson, Encoding.UTF8, "application/json");
+                    HttpClient httpClient = new HttpClient();
+                    HttpResponseMessage result = await httpClient.PostAsync("http://20.69.69.228/TypeTest/comptest", content);
                 }catch(Exception e)
                 {
                     Log.Error(e.StackTrace);
