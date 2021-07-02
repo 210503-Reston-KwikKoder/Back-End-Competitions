@@ -620,14 +620,40 @@ namespace CBETests
                     }
                 }
                 );
+            mockCompBL.Setup(x => x.GetCompetition(1)).ReturnsAsync(new Competition() { Id = 1, UserCreatedId = 1, StartDate = new DateTime(), EndDate = new DateTime(), CategoryId = 1, CompetitionName = "Name", TestString = "String", TestAuthor = "Author" });
             var mockCatBL = new Mock<ICategoryBL>();
             var mockUserBL = new Mock<IUserBL>();
+            mockUserBL.Setup(userBL => userBL.GetUser(1)).ReturnsAsync(new User() { Id = 1, Auth0Id = "BZ", Revapoints = 5000 });
             var settings = Options.Create(new ApiSettings());
 
             var controller = new CompetitionController(mockCompBL.Object, mockCatBL.Object, mockUserBL.Object, settings);
             var result = await controller.GetAsync(1);
             Assert.NotNull(result);
             Assert.IsType<ActionResult<IEnumerable<CompStatOutput>>>(result);
+        }
+
+        [Fact]
+        public async Task CompetitionControllerShouldPost()
+        {
+            var mockCompBL = new Mock<ICompBL>();
+            mockCompBL.Setup(compBL => compBL.AddCompetition(new DateTime(), new DateTime(), 1, "Name", 1, "String", "Author")).ReturnsAsync(1);
+            var mockCatBL = new Mock<ICategoryBL>();
+            mockCatBL.Setup(catBL => catBL.GetCategory(1)).ReturnsAsync(new Category() { Id = 1, Name = 1 });
+            var mockUserBL = new Mock<IUserBL>();
+            mockUserBL.Setup(userBL => userBL.GetUser("BZ")).ReturnsAsync(new User() { Id = 1, Auth0Id = "BZ", Revapoints = 5000 });
+            var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, "BZ")
+            }));
+            var settings = Options.Create(new ApiSettings());
+            var controller = new CompetitionController(mockCompBL.Object, mockCatBL.Object, mockUserBL.Object, settings);
+            controller.ControllerContext = new ControllerContext();
+            controller.ControllerContext.HttpContext = new DefaultHttpContext { User = user };
+            var result = await controller.Post(new CompetitionObject() { Name = "Name", Start = new DateTime(), End = new DateTime(), Category = 1, snippet = "String", author = "Author", compId = 1 });
+            var createResult = result as CreatedAtRouteResult;
+            Assert.NotNull(createResult);
+            Assert.True(createResult is CreatedAtRouteResult);
+            Assert.Equal(StatusCodes.Status201Created, createResult.StatusCode);
         }
 
         [Fact]
@@ -660,10 +686,11 @@ namespace CBETests
 
         }
         [Fact]
-        public void CheckScopeAuthShouldThrowAnexception()
+        public void CheckScopeAuthShouldThrowAnException()
         {
             Assert.Throws<ArgumentNullException>(() => new CheckScopeAuth(null, null));
         }
+
         [Fact]
         public async Task AddLiveCompetitionShouldAddCompetition()
         {
@@ -967,6 +994,30 @@ namespace CBETests
             var result = await controller.PutResult(1, new LiveCompTestResultInput() { won = true, winStreak = 2});
             Assert.NotNull(result);
             Assert.IsType<OkResult>(result);
+        }
+
+        [Fact]
+        public async Task CompetitionTestsShouldPost()
+        {
+            var mockCompBL = new Mock<ICompBL>();
+            DateTime date = DateTime.Now;
+            mockCompBL.Setup(compBL => compBL.GetCompetition(1)).ReturnsAsync(new Competition() { Id = 1, UserCreatedId = 1, StartDate = new DateTime(), EndDate = date.AddHours(1), CategoryId = 1, CompetitionName = "Name", TestString = "String", TestAuthor = "Author" });
+            mockCompBL.Setup(compBL => compBL.InsertCompStatUpdate(new CompetitionStat() { CompetitionId = 1, UserId = 1, rank = 5, WPM = 25, Accuracy = 6 }, 500, 2)).ReturnsAsync(1);
+            var mockUserBL = new Mock<IUserBL>();
+            mockUserBL.Setup(userBL => userBL.GetUser("BZ")).ReturnsAsync(new User() { Id = 1, Auth0Id = "BZ", Revapoints = 5000 });
+            var mockCatBL = new Mock<ICategoryBL>();
+            mockCatBL.Setup(catBL => catBL.GetCategory(1)).ReturnsAsync(new Category() { Id = 1, Name = 1 });
+            ISnippets snippetService = new Snippets();
+            var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, "BZ")
+            }));
+            var controller = new CompetitonTestsController(mockUserBL.Object, mockCatBL.Object, mockCompBL.Object, snippetService);
+            controller.ControllerContext = new ControllerContext();
+            controller.ControllerContext.HttpContext = new DefaultHttpContext { User = user };
+            var result = await controller.Post(new CompInput() { compId = 1 });
+            Assert.NotNull(result);
+            Assert.Equal(0, result.Value);
         }
 
         [Fact]
