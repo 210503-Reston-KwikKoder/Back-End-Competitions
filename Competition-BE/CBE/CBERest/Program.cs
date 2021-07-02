@@ -21,7 +21,6 @@ namespace CBERest
 
             //then create the host, so that if the host fails we can log errors
             CreateHost(args);
-
             
         }
 
