@@ -159,6 +159,7 @@ namespace CBERest.Controllers
                     queueModel.userId = userQueue.UserId;
                     try
                     {
+                        //getting user information from auth0
                         User u = await _userBL.GetUser(userQueue.UserId);
                         dynamic AppBearerToken = GetApplicationToken();
                         var client = new RestClient($"https://kwikkoder.us.auth0.com/api/v2/users/{u.Auth0Id}");
@@ -181,6 +182,7 @@ namespace CBERest.Controllers
         [HttpPut("LCQ/{id}")]
         public async Task<ActionResult> EnQueueUser(int id)
         {
+            //check if user exists before operations
             string UserID = this.User.FindFirst(ClaimTypes.NameIdentifier).Value;
             if (await _userBL.GetUser(UserID) == null)
             {
@@ -219,6 +221,7 @@ namespace CBERest.Controllers
         {
             List<LiveCompStatModel> lcsModels = new List<LiveCompStatModel>();
             List<LiveCompStat> liveCompStats = await _compBL.GetLiveCompStats(id);
+            //404 if no live comp stats can be found
             if (liveCompStats.Count == 0) return NotFound();
             else foreach (LiveCompStat liveCompStat in liveCompStats)
                 {
@@ -228,6 +231,7 @@ namespace CBERest.Controllers
                     lcsModel.WLRatio = liveCompStat.WLRatio;
                     try
                     {
+                        //getting user information from auth0
                         User u = await _userBL.GetUser(liveCompStat.UserId);
                         dynamic AppBearerToken = GetApplicationToken();
                         var client = new RestClient($"https://kwikkoder.us.auth0.com/api/v2/users/{u.Auth0Id}");
@@ -251,6 +255,7 @@ namespace CBERest.Controllers
         public async Task<ActionResult> PutResult(int id, LiveCompTestResultInput liveCompTestResultInput)
         {
             string UserID = this.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            //checking if user exists then adding user if not
             if (await _userBL.GetUser(UserID) == null)
             {
                 User user = new User();
@@ -275,7 +280,7 @@ namespace CBERest.Controllers
                     string resultJson = JsonConvert.SerializeObject(liveCompTestResultOutput);
                     StringContent content = new StringContent(resultJson, Encoding.UTF8, "application/json");
                     HttpClient httpClient = new HttpClient();
-                    HttpResponseMessage result = await httpClient.PostAsync("http://20.69.69.228/TypeTest/comptest", content);
+                    HttpResponseMessage result = await httpClient.PostAsync("http://20.69.69.228/typetest/api/TypeTest/comptest", content);
                 }catch(Exception e)
                 {
                     Log.Error(e.StackTrace);
