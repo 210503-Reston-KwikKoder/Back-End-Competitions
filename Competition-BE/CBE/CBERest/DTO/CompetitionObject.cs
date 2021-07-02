@@ -21,7 +21,6 @@ namespace CBERest.DTO{
         public string snippet { get; set; }
         public string author { get; set; }
         public int compId { get; set; }
-        public bool restricted { get; set; }
     }
 
 }
