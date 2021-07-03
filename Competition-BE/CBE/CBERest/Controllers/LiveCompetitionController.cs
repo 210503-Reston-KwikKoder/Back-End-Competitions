@@ -100,7 +100,6 @@ namespace CBERest.Controllers
                                        value: compId);
         }
         [HttpPut("nexttest")]
-        [Authorize]
         public async Task<ActionResult> PutAsync(LiveCompTestInput liveCompTestInput)
         {
             try
