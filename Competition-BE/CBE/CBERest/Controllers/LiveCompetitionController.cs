@@ -78,6 +78,7 @@ namespace CBERest.Controllers
         {
             LiveCompetition liveCompetition = new LiveCompetition();
             liveCompetition.Name = liveCompInput.Name;
+            if (string.IsNullOrEmpty(liveCompetition.Name)||string.IsNullOrWhiteSpace(liveCompetition.Name)) return BadRequest();
             int compId = await _compBL.AddLiveCompetition(liveCompetition);
             if (compId == -1) return BadRequest();
             return CreatedAtRoute(
