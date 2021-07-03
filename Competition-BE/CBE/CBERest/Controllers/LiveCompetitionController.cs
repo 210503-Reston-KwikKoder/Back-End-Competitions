@@ -122,11 +122,11 @@ namespace CBERest.Controllers
                 UserQueue userQueue = await _compBL.DeQueueUserQueue(id);
                 QueueModel queueModel = new QueueModel();
                 queueModel.enterTime = userQueue.EnterTime;
-                queueModel.userId = userQueue.UserId;
                 try
                 {
                     User u = await _userBL.GetUser(id);
                     dynamic AppBearerToken = GetApplicationToken();
+                    queueModel.userId = u.Auth0Id;
                     var client = new RestClient($"https://kwikkoder.us.auth0.com/api/v2/users/{u.Auth0Id}");
                     var request = new RestRequest(Method.GET);
                     request.AddHeader("authorization", "Bearer " + AppBearerToken.access_token);
@@ -157,12 +157,12 @@ namespace CBERest.Controllers
                 {
                     QueueModel queueModel = new QueueModel();
                     queueModel.enterTime = userQueue.EnterTime;
-                    queueModel.userId = userQueue.UserId;
                     try
                     {
                         //getting user information from auth0
                         User u = await _userBL.GetUser(userQueue.UserId);
                         dynamic AppBearerToken = GetApplicationToken();
+                        queueModel.userId = u.Auth0Id;
                         var client = new RestClient($"https://kwikkoder.us.auth0.com/api/v2/users/{u.Auth0Id}");
                         var request = new RestRequest(Method.GET);
                         request.AddHeader("authorization", "Bearer " + AppBearerToken.access_token);
