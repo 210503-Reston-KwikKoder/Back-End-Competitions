@@ -21,16 +21,7 @@ namespace CBERest
 
             //then create the host, so that if the host fails we can log errors
             CreateHost(args);
-
-            try
-            {
-                CreateHostBuilder(args).Build().Run();
-                Log.Information("Started web host");
-            }
-            catch (Exception ex)
-            {
-                Log.Fatal(ex, "Host terminated unexpectedly");
-            }
+            
         }
 
         private static void ConfigureLogging()
