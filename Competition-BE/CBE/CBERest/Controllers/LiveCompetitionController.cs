@@ -69,7 +69,20 @@ namespace CBERest.Controllers
             }
             return liveCompTestOutputs;
         }
-
+        [HttpGet("latest/{id}")]
+        public async Task<ActionResult<LiveCompTestOutput>> GetLast(int id)
+        {
+            List<LiveCompetitionTest> liveCompetitionTests = await _compBL.GetLiveCompetitionTestsForCompetition(id);
+            if (liveCompetitionTests.Count == 0) return NotFound();
+            LiveCompetitionTest liveCompetitionTest = liveCompetitionTests[liveCompetitionTests.Count - 1];
+           
+            LiveCompTestOutput liveCompTestOutput = new LiveCompTestOutput();
+            liveCompTestOutput.Category = (await _categoryBL.GetCategoryById(liveCompetitionTest.CategoryId)).Name;
+            liveCompTestOutput.CompId = liveCompetitionTest.LiveCompetitionId;
+            liveCompTestOutput.TestAuthor = liveCompetitionTest.TestAuthor;
+            liveCompTestOutput.TestString = liveCompetitionTest.TestString;
+            return liveCompTestOutput;
+        }
         // POST api/<LiveCompetitionController>
 
         [HttpPost]
@@ -104,6 +117,7 @@ namespace CBERest.Controllers
                 Category category1 = await _categoryBL.GetCategory(liveCompTestInput.category);
                 liveCompetitionTest.CategoryId = category1.Id;
                 liveCompetitionTest.LiveCompetitionId = liveCompTestInput.compId;
+                liveCompetitionTest.DateCreated = DateTime.Now;
                 await _compBL.AddLiveCompetitionTest(liveCompetitionTest);
                 return Ok();
             }

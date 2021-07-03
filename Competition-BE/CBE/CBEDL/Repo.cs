@@ -407,6 +407,7 @@ namespace CBEDL
             {
                 List<LiveCompetitionTest> liveCompetitionTests = await(from lCT in _context.LiveCompetitionTests
                                                                        where lCT.LiveCompetitionId == compId
+                                                                       orderby lCT.DateCreated
                                                                        select lCT).ToListAsync();
                 return liveCompetitionTests;
             }catch(Exception e)

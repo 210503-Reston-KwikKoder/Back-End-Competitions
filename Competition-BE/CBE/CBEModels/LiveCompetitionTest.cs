@@ -18,6 +18,7 @@ namespace CBEModels
         public string TestAuthor { get; set; }
         public int CategoryId { get; set; }
         public Category Category { get; set; }
+        public DateTime DateCreated { get; set; }
 
     }
 }
