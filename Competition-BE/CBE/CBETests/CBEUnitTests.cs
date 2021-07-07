@@ -1131,14 +1131,8 @@ namespace CBETests
             {
                 Competition c = new Competition();
                 ICompBL compBL = new CompBL(context);
-                User user = new User();
-                user.Auth0Id = "test";
-                IUserBL userBL = new UserBL(context);
-                LiveCompetition liveCompetition = new LiveCompetition();
-                liveCompetition.Name = "Test";
-                int expected = 0;
-                int actual = (await compBL.GetLiveCompStats(1)).Count;
-                Assert.Equal(expected, actual);
+                var actual = (await compBL.GetLiveCompStats(3));
+                Assert.Empty(actual);
             }
         }
 
