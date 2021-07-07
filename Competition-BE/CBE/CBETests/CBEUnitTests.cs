@@ -1125,6 +1125,301 @@ namespace CBETests
             }
         }
 
+        [Fact]
+        public async void GetLastShouldWork()
+        {
+            using (var context = new CBEDbContext(options))
+            {
+                var userBLMock = new Mock<IUserBL>();
+                var compBlMock = new Mock<ICompBL>();
+                compBlMock.Setup(x => x.GetLiveCompetitionTestsForCompetition(It.IsAny<int>())).ReturnsAsync(
+                    new List<LiveCompetitionTest>
+                    {
+                        new LiveCompetitionTest
+                        {
+                            CategoryId = 1,
+                            Id = 1,
+                            DateCreated = DateTime.Now,
+                            LiveCompetitionId = 1,
+                            TestAuthor = "test author",
+                            TestString = "test string"
+                        }
+                    }
+                    );
+
+                var cateBLMock = new Mock<ICategoryBL>();
+                cateBLMock.Setup(x => x.GetCategoryById(It.IsAny<int>())).ReturnsAsync(
+                    new Category
+                    {
+                        Id = 1,
+                        Name = 1
+                    }
+                    );
+
+                var settings = Options.Create(new ApiSettings());
+
+                var controller = new LiveCompetitionController(compBlMock.Object, cateBLMock.Object, userBLMock.Object, settings);
+
+                var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+                {
+                    new Claim(ClaimTypes.NameIdentifier, "BZ")
+                }));
+
+                controller.ControllerContext = new ControllerContext();
+                controller.ControllerContext.HttpContext = new DefaultHttpContext { User = user };
+
+                var result = await controller.GetLast(1);
+                int expected = 1;
+
+                Assert.IsType<LiveCompTestOutput>(result.Value);
+                Assert.Equal(result.Value.CompId, expected);
+
+            }
+        }
+
+        [Fact]
+        public async void GetLastShouldRetuenNotFound()
+        {
+            using (var context = new CBEDbContext(options))
+            {
+                var userBLMock = new Mock<IUserBL>();
+                var compBlMock = new Mock<ICompBL>();
+                compBlMock.Setup(x => x.GetLiveCompetitionTestsForCompetition(It.IsAny<int>())).ReturnsAsync(
+                    new List<LiveCompetitionTest>()
+                    );
+
+                var cateBLMock = new Mock<ICategoryBL>();
+                cateBLMock.Setup(x => x.GetCategoryById(It.IsAny<int>())).ReturnsAsync(
+                    new Category
+                    {
+                        Id = 1,
+                        Name = 1
+                    }
+                    );
+
+                var settings = Options.Create(new ApiSettings());
+
+                var controller = new LiveCompetitionController(compBlMock.Object, cateBLMock.Object, userBLMock.Object, settings);
+
+                var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+                {
+                    new Claim(ClaimTypes.NameIdentifier, "BZ")
+                }));
+
+                controller.ControllerContext = new ControllerContext();
+                controller.ControllerContext.HttpContext = new DefaultHttpContext { User = user };
+
+                var result = await controller.GetLast(1);
+
+                Assert.IsType<NotFoundResult>(result.Result);
+
+            }
+        }
+
+        [Fact]
+        public async void DeQueueErroShouldReturnNotFound()
+        {
+            using (var context = new CBEDbContext(options))
+            {
+                var userBLMock = new Mock<IUserBL>();
+                var compBlMock = new Mock<ICompBL>();
+                compBlMock.Setup(x => x.DeQueueUserQueue(It.IsAny<int>())).Throws(new Exception("test"));
+
+                var cateBLMock = new Mock<ICategoryBL>();
+
+                var settings = Options.Create(new ApiSettings());
+
+                var controller = new LiveCompetitionController(compBlMock.Object, cateBLMock.Object, userBLMock.Object, settings);
+
+                var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+                {
+                    new Claim(ClaimTypes.NameIdentifier, "BZ")
+                }));
+
+                controller.ControllerContext = new ControllerContext();
+                controller.ControllerContext.HttpContext = new DefaultHttpContext { User = user };
+
+                var result = await controller.DeQueue(1);
+
+                Assert.IsType<NotFoundResult>(result.Result);
+
+            }
+        }
+
+        [Fact]
+        public async void GetLCQReturnNotFound()
+        {
+            using (var context = new CBEDbContext(options))
+            {
+                var userBLMock = new Mock<IUserBL>();
+                var compBlMock = new Mock<ICompBL>();
+                compBlMock.Setup(x => x.GetLiveCompetitionUserQueue(It.IsAny<int>())).ReturnsAsync(
+                    new List<UserQueue>()
+                    );
+
+                var cateBLMock = new Mock<ICategoryBL>();
+
+                var settings = Options.Create(new ApiSettings());
+
+                var controller = new LiveCompetitionController(compBlMock.Object, cateBLMock.Object, userBLMock.Object, settings);
+
+                var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+                {
+                    new Claim(ClaimTypes.NameIdentifier, "BZ")
+                }));
+
+                controller.ControllerContext = new ControllerContext();
+                controller.ControllerContext.HttpContext = new DefaultHttpContext { User = user };
+
+                var result = await controller.GetLCQ(1);
+
+                Assert.IsType<NotFoundResult>(result.Result);
+
+            }
+        }
+
+        [Fact]
+        public async void GetLCQShouldCatchException()
+        {
+            using (var context = new CBEDbContext(options))
+            {
+                var userBLMock = new Mock<IUserBL>();
+                userBLMock.Setup(x => x.GetUser(It.IsAny<int>())).Throws(new Exception(""));
+
+                var compBlMock = new Mock<ICompBL>();
+                compBlMock.Setup(x => x.GetLiveCompetitionUserQueue(It.IsAny<int>())).ReturnsAsync(
+                    new List<UserQueue>
+                    {
+                        new UserQueue
+                        {
+                            UserId = 1,
+                            EnterTime = DateTime.Now,
+                            LiveCompetitionId = 1
+                        }
+                    }
+                    );
+
+                var cateBLMock = new Mock<ICategoryBL>();
+
+                var settings = Options.Create(new ApiSettings());
+
+                var controller = new LiveCompetitionController(compBlMock.Object, cateBLMock.Object, userBLMock.Object, settings);
+
+                var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+                {
+                    new Claim(ClaimTypes.NameIdentifier, "BZ")
+                }));
+
+                controller.ControllerContext = new ControllerContext();
+                controller.ControllerContext.HttpContext = new DefaultHttpContext { User = user };
+
+                var result = await controller.GetLCQ(1);
+                int expected = 1;
+
+                Assert.IsType<List<QueueModel>>(result.Value);
+                Assert.Equal(result.Value.Count, expected);
+
+            }
+        }
+
+        [Fact]
+        public async void EnQueueuserShouldReturnNotFound()
+        {
+            using (var context = new CBEDbContext(options))
+            {
+                IUserBL userBL = new UserBL(context);
+
+
+                ICompBL compBL = new CompBL(context);
+
+                var cateBLMock = new Mock<ICategoryBL>();
+
+                var settings = Options.Create(new ApiSettings());
+
+                var controller = new LiveCompetitionController(compBL, cateBLMock.Object, userBL, settings);
+
+                var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+                {
+                    new Claim(ClaimTypes.NameIdentifier, "BZ")
+                }));
+
+                controller.ControllerContext = new ControllerContext();
+                controller.ControllerContext.HttpContext = new DefaultHttpContext { User = user };
+
+                var result = await controller.EnQueueUser(1);
+
+                Assert.IsType<NotFoundResult>(result);
+
+            }
+        }
+
+        [Fact]
+        public async void EnQueueuserShouldReturnOK()
+        {
+            using (var context = new CBEDbContext(options))
+            {
+                IUserBL userBL = new UserBL(context);
+
+
+                var compBlMock = new Mock<ICompBL>();
+                compBlMock.Setup(x => x.AddToQueue(It.IsAny<UserQueue>())).ReturnsAsync(
+                    new UserQueue()
+                    );
+
+
+                var cateBLMock = new Mock<ICategoryBL>();
+
+                var settings = Options.Create(new ApiSettings());
+
+                var controller = new LiveCompetitionController(compBlMock.Object, cateBLMock.Object, userBL, settings);
+
+                var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+                {
+                    new Claim(ClaimTypes.NameIdentifier, "BZ")
+                }));
+
+                controller.ControllerContext = new ControllerContext();
+                controller.ControllerContext.HttpContext = new DefaultHttpContext { User = user };
+
+                var result = await controller.EnQueueUser(1);
+
+                Assert.IsType<OkResult>(result);
+
+            }
+        }
+
+        [Fact]
+        public async void DeleteErrorShouldReturnNotFound()
+        {
+            using (var context = new CBEDbContext(options))
+            {
+                var userBLMock = new Mock<IUserBL>();
+                userBLMock.Setup(x => x.GetUser(It.IsAny<int>())).Throws(new Exception(""));
+
+                var compBlMock = new Mock<ICompBL>();
+
+                var cateBLMock = new Mock<ICategoryBL>();
+
+                var settings = Options.Create(new ApiSettings());
+
+                var controller = new LiveCompetitionController(compBlMock.Object, cateBLMock.Object, userBLMock.Object, settings);
+
+                var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+                {
+                    new Claim(ClaimTypes.NameIdentifier, "BZ")
+                }));
+
+                controller.ControllerContext = new ControllerContext();
+                controller.ControllerContext.HttpContext = new DefaultHttpContext { User = user };
+
+                var result = await controller.Delete(1);
+
+                Assert.IsType<NotFoundResult>(result);
+
+
+            }
+        }
+
         private void Seed()
         {
             using (var context = new CBEDbContext(options))
