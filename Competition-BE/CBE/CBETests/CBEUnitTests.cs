@@ -1124,17 +1124,20 @@ namespace CBETests
                 Assert.Equal(expected, actual);
             }
         }
-        [Fact]
-        public async Task EnsureLiveCompStatsReturnsEmpty()
-        {
-            using (var context = new CBEDbContext(options))
-            {
-                Competition c = new Competition();
-                ICompBL compBL = new CompBL(context);
-                var actual = (await compBL.GetLiveCompStats(3));
-                Assert.Empty(actual);
-            }
-        }
+        // [Fact]
+        // public async Task EnsureLiveCompStatsReturnsEmpty()
+        // {
+        //     Mock mcontext = new Mock<CBEDbContext>();
+        //     mcontext.Setup(x => x.LiveCompStats).returns(null);
+        //     using (var context = new CBEDbContext(options))
+        //     {
+        //         //ICompBL compBL = new CompBL(context);
+        //         Repo _repo = new Repo(context);
+
+        //         var actual = (await _repo.GetLiveCompStats(3));
+        //         Assert.Empty(actual);
+        //     }
+        // }
 
         private void Seed()
         {
