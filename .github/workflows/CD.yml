@@ -34,7 +34,7 @@ jobs:
     # Container build and push to Docker Hub
     - name: build and push image to Docker Hub
       run: |
-        docker build Competition-BE/CBE -t ${{ secrets.DOCKERHUB_USERNAME}}/${{ env.APP_NAME }}:${{ github.sha }}
+        docker build CBE -t ${{ secrets.DOCKERHUB_USERNAME}}/${{ env.APP_NAME }}:${{ github.sha }}
         docker push ${{ secrets.DOCKERHUB_USERNAME}}/${{ env.APP_NAME }}:${{ github.sha }}
     # Set the target Azure Kubernetes Service (AKS) cluster. 
     - name: Setup azure credentials
@@ -65,7 +65,7 @@ jobs:
       uses: azure/k8s-deploy@v1
       with:
         manifests: |
-          Competition-BE/CBE/manifests/deploy-api.yml
+          CBE/manifests/deploy-api.yml
         images: |
           ${{ secrets.DOCKERHUB_USERNAME}}/${{ env.APP_NAME }}:${{ github.sha }}
         imagePullSecrets: |

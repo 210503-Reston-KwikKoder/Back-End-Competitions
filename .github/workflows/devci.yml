@@ -30,11 +30,11 @@ jobs:
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
       - name: Install dependencies
-        run: dotnet restore ./Competition-BE/CBE
+        run: dotnet restore CBE
       - name: Build
-        run: dotnet build ./Competition-BE/CBE --configuration Release --no-restore
+        run: dotnet build CBE --configuration Release --no-restore
       - name: Test
-        run: dotnet test ./Competition-BE/CBE --no-restore --verbosity normal
+        run: dotnet test CBE --no-restore --verbosity normal
       - name: SonarScanner for .NET 5
         uses: highbyte/sonarscan-dotnet@2.0
         with:
@@ -44,8 +44,8 @@ jobs:
           sonarProjectName: Back-End-Competitions
           # The name of the SonarQube organization in SonarCloud. For hosted SonarQube, skip this setting.
           sonarOrganization: 210503-reston-kwikkoder
-          dotnetBuildArguments: ./Competition-BE/CBE
-          dotnetTestArguments: ./Competition-BE/CBE --logger trx --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+          dotnetBuildArguments: CBE
+          dotnetTestArguments: CBE --logger trx --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
           # Optional extra command arguments the the SonarScanner 'begin' command
           sonarBeginArguments: /d:sonar.cs.opencover.reportsPaths="**/TestResults/**/coverage.opencover.xml" -d:sonar.cs.vstest.reportsPaths="**/TestResults/*.trx"
         env:
