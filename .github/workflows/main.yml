@@ -35,19 +35,33 @@ jobs:
         run: dotnet build CBE --configuration Release --no-restore
       - name: Test
         run: dotnet test CBE --no-restore --verbosity normal
-      - name: SonarScanner for .NET 5
-        uses: highbyte/sonarscan-dotnet@2.0
+      - name: Sonarscanner for dotnet
+        uses: Secbyte/dotnet-sonarscanner@v2.3
         with:
-          # The key of the SonarQube project
-          sonarProjectKey: 210503-Reston-KwikKoder_Back-End-Competitions
-          # The name of the SonarQube project
-          sonarProjectName: Back-End-Competitions
-          # The name of the SonarQube organization in SonarCloud. For hosted SonarQube, skip this setting.
-          sonarOrganization: 210503-reston-kwikkoder
-          dotnetBuildArguments: CBE
-          dotnetTestArguments: CBE --logger trx --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
-          # Optional extra command arguments the the SonarScanner 'begin' command
-          sonarBeginArguments: /d:sonar.cs.opencover.reportsPaths="**/TestResults/**/coverage.opencover.xml" -d:sonar.cs.vstest.reportsPaths="**/TestResults/*.trx"
+          buildCommand: dotnet build CBE
+          testCommand: dotnet test CBE --logger trx --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+          projectKey: 210503-Reston-KwikKoder_Back-End-Competitions
+          projectName: Back-End-Competitions
+          sonarOrganisation: 210503-reston-kwikkoder
+          beginArguments: >
+              /d:sonar.cs.opencover.reportsPaths="**/TestResults/**/coverage.opencover.xml" 
+              /d:sonar.cs.vstest.reportsPaths="**/TestResults/*.trx"
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#       - name: SonarScanner for .NET 5
+#         uses: highbyte/sonarscan-dotnet@2.0
+#         with:
+#           # The key of the SonarQube project
+#           sonarProjectKey: 210503-Reston-KwikKoder_Back-End-Competitions
+#           # The name of the SonarQube project
+#           sonarProjectName: Back-End-Competitions
+#           # The name of the SonarQube organization in SonarCloud. For hosted SonarQube, skip this setting.
+#           sonarOrganization: 210503-reston-kwikkoder
+#           dotnetBuildArguments: CBE
+#           dotnetTestArguments: CBE --logger trx --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+#           # Optional extra command arguments the the SonarScanner 'begin' command
+#           sonarBeginArguments: /d:sonar.cs.opencover.reportsPaths="**/TestResults/**/coverage.opencover.xml" -d:sonar.cs.vstest.reportsPaths="**/TestResults/*.trx"
+#         env:
+#           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
